@@ -71,7 +71,7 @@ options to plugin configuration and add **grunt-cli** to JS project **package.js
 
 Since plugin creates own target dir, it should be added to ignored resources in SCM configuration (like .gitignore).
 
-## maven-grunt options
+## grunt-maven-plugin options
 
 Plugin options available in `<configuration>...</configuration>` are:
 
