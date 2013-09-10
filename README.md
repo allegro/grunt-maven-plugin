@@ -18,7 +18,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
     <version>1.0.0</version>
     <configuration>
 	<!-- relative to src/main/webapp/, default: static -->
-        <jsSourceDir>path_to_js_project</jsSourceDir>
+        <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
     </configuration>
     <executions>
         <execution>
