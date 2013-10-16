@@ -15,7 +15,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <configuration>
 	<!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -75,6 +75,7 @@ Since plugin creates own target dir, it should be added to ignored resources in 
 
 Plugin options available in `<configuration>...</configuration>` are:
 
+* **showColors** : should Grunt and npm use color output; defaults to *false*
 * **target** : name of Grunt target to run (defaults to null, default Grunt target is run)
 * **gruntBuildDirectory** : path to Grunt build directory (target for Grunt); defaults to *${basedir}/target-grunt*
 * **sourceDirectory** : path to directory containing source JavaScript project directory; defaults to *${basedir}/src/main/webapp*
@@ -176,6 +177,14 @@ Define custom runner that will run:
     mvn grunt:grunt -Dtarget=watch
 
 You should see process output each time static sources change.
+
+## Changelog
+
+* **1.0.2** (15.10.2013)
+  * option to disable npm and grunt color output, by default no colors are shown as it looks bad in Maven logs (#3)
+* **1.0.1** (13.09.2013)
+  * compatibility with Maven 3.1.x (#1)
+
 
 ## License
 
