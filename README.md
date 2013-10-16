@@ -181,9 +181,9 @@ You should see process output each time static sources change.
 ## Changelog
 
 * **1.0.2** (15.10.2013)
-  * option to disable npm and grunt color output, by default no colors are shown as it looks bad in Maven logs (#3)
+  * option to disable npm and grunt color output, by default no colors are shown as it looks bad in Maven logs ( #3 )
 * **1.0.1** (13.09.2013)
-  * compatibility with Maven 3.1.x (#1)
+  * compatibility with Maven 3.1.x ( #1 )
 
 
 ## License
