@@ -25,7 +25,8 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
  * Abstract mojo which uses MojoExecutor to execute exec-maven-plugin,
  * which in turn executes system command - commandline only.
  *
- * Compatible with Windows via <pre>cmd /C</pre>.
+ * Compatible with Windows via
+ * <pre>cmd /C</pre>.
  *
  * @author Adam Dubiel
  */
@@ -58,11 +59,18 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
     private String osName;
 
     /**
+     * Should npm/grunt print colors in output (default to false).
+     */
+    @Parameter(property = "showColors", defaultValue = "false")
+    protected boolean showColors;
+
+    /**
      * Version of exec plugin to use (defaults to 1.2.1).
      */
     @Parameter(property = "execMavenPluginVersion", defaultValue = "1.2.1")
     protected String execMavenPluginVersion;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Element[] configuration = buildConfigForOS();
 
@@ -70,13 +78,14 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
                 groupId(EXEC_MAVEN_GROUP),
                 artifactId(EXEC_MAVEN_ARTIFACT),
                 version(execMavenPluginVersion)),
-                goal(EXEC_GOAL),
-                configuration(configuration),
-                executionEnvironment(mavenProject, mavenSession, pluginManager));
+                    goal(EXEC_GOAL),
+                    configuration(configuration),
+                    executionEnvironment(mavenProject, mavenSession, pluginManager));
     }
 
     /**
-     * Create <pre>configuration</pre> element for host OS.
+     * Create
+     * <pre>configuration</pre> element for host OS.
      *
      * @return <pre>configuration</pre> element
      */
@@ -96,7 +105,8 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
     }
 
     /**
-     * Create <pre>configuration</pre> element for proper *nix OSes.
+     * Create
+     * <pre>configuration</pre> element for proper *nix OSes.
      *
      * @return configuration
      */
@@ -110,7 +120,8 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
     }
 
     /**
-     * Create <pre>configuration</pre> element for strange Windows OS.
+     * Create
+     * <pre>configuration</pre> element for strange Windows OS.
      *
      * @return configuration
      */
@@ -132,7 +143,7 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
     /**
      * Don't want to use any dependencies like Apache Commons - sorry.
      *
-     * @param <T> type of array entries
+     * @param <T>    type of array entries
      * @param array1 first array
      * @param array2 second array
      * @return first array + second array
@@ -144,7 +155,8 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
     }
 
     /**
-     * Return executable form maven exec <pre>executable element</pre>, return
+     * Return executable form maven exec
+     * <pre>executable element</pre>, return
      * executable name for *nix OS, not Windows!
      *
      * @return executable name

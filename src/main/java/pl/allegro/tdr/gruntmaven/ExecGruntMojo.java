@@ -70,6 +70,9 @@ public class ExecGruntMojo extends AbstractExecutableMojo {
         if (runGruntWithNode) {
             arguments.add(element(name("argument"), gruntExecutable));
         }
+        if(!showColors) {
+            arguments.add(element(name("argument"), "--color=false"));
+        }
         if(target != null && !target.isEmpty()) {
             arguments.add(element(name("argument"), target));
         }

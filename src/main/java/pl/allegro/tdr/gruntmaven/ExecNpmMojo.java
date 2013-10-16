@@ -15,6 +15,8 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -44,6 +46,14 @@ public class ExecNpmMojo extends AbstractExecutableMojo {
 
     @Override
     protected Element[] getArguments() {
-        return new Element[] { element(name("argument"), NPM_INSTALL_COMMAND) };
+        List<Element> arguments = new ArrayList<Element>();
+
+        arguments.add(element(name("argument"), NPM_INSTALL_COMMAND));
+
+        if (!showColors) {
+            arguments.add(element(name("argument"), "--color=false"));
+        }
+
+        return arguments.toArray(new Element[arguments.size()]);
     }
 }
