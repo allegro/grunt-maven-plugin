@@ -60,6 +60,7 @@ public class CleanResourcesMojo extends BaseMavenGruntMojo {
     @Parameter(property = "mavenCleanPluginVersion", defaultValue = "2.5")
     protected String mavenCleanPluginVersion;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         executeMojo(plugin(
                 groupId(CLEAN_MAVEN_GROUP),
@@ -67,11 +68,11 @@ public class CleanResourcesMojo extends BaseMavenGruntMojo {
                 version(mavenCleanPluginVersion)),
                 goal(CLEAN_GOAL),
                 configuration(
-                element(
-                name("filesets"),
-                element(name("fileset"),
-                element(name("directory"), gruntBuildDirectory))),
-                element(name("excludeDefaultDirectories"), "true")),
+                        element(
+                                name("filesets"),
+                                element(name("fileset"),
+                                        element(name("directory"), gruntBuildDirectory))),
+                        element(name("excludeDefaultDirectories"), "true")),
                 executionEnvironment(mavenProject, mavenSession, pluginManager));
     }
 }

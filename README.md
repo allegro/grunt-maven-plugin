@@ -57,6 +57,34 @@ options to plugin configuration and add **grunt-cli** to JS project **package.js
 }
 ```
 
+### Usage with preinstalled node_modules
+
+When you want to use tool like [frontend-maven-plugin](https://github.com/eirslett/frontend-maven-plugin)
+to install node and npm locally or when you have commited-in **node_modules** directory
+(not really recommended, see [npm shronkwrap](https://npmjs.org/doc/shrinkwrap.html) to
+freeze module versions), you can make **grunt-maven-plugin** use preinstalled
+node_modules. Just replace **npm** goal with **link** and add **nodeModulesPath**
+to configuration options. Example:
+
+```xml
+    <configuration>
+        <nodeModulesPath>${basedir}/preinstalled_modules_dir/</nodeModulesPath>
+    </configuration>
+    <executions>
+        <execution>
+            <goals>
+                <goal>create-resources</goal>
+                <goal>link</goal>
+                <goal>grunt</goal>
+            </goals>
+        </execution>
+    </executions>
+```
+
+Under the hood it uses [maven-junction-plugin](http://pyx4j.com/snapshot/pyx4j/pyx4j-maven-plugins/maven-junction-plugin/introduction.html)
+to create a link between provided path and *gruntBuildDirectory*. Grunt thinks it has
+its modules in place and executes flawlessly.
+
 ## How it works?
 
 1. JavaScript project sources from
@@ -93,6 +121,7 @@ Plugin options available in `<configuration>...</configuration>` are:
 
 * **nodeExecutable** : name of globally available **node** executable; defaults to *node*
 * **npmExecutable** : name of globally available **npm** executable; defaults to *npm*
+* **nodeModulesPath** : path where preinstalled **node_modules** are stored
 
 #### grunt options
 
