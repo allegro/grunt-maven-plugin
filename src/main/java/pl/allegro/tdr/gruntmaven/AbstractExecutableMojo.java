@@ -16,6 +16,8 @@
 package pl.allegro.tdr.gruntmaven;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -31,6 +33,13 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
  * @author Adam Dubiel
  */
 public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
+
+    /**
+     * Pattern for detecting options with whitespace characters. Anything after
+     * first whitespace is ignored by exec-maven-plugin, so they need to be transformed, ex:
+     * --option true == --option=true
+     */
+    private static final Pattern WHITESPACED_OPTION_PATTERN = Pattern.compile("^-{1,2}?[\\w-]*\\s+");
 
     /**
      * Windows OS name.
@@ -78,9 +87,9 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
                 groupId(EXEC_MAVEN_GROUP),
                 artifactId(EXEC_MAVEN_ARTIFACT),
                 version(execMavenPluginVersion)),
-                    goal(EXEC_GOAL),
-                    configuration(configuration),
-                    executionEnvironment(mavenProject, mavenSession, pluginManager));
+                goal(EXEC_GOAL),
+                configuration(configuration),
+                executionEnvironment(mavenProject, mavenSession, pluginManager));
     }
 
     /**
@@ -169,4 +178,15 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
      * @return arguments
      */
     protected abstract Element[] getArguments();
+
+    /**
+     * Normalization checks for any whitespaces
+     */
+    protected String normalizeArgument(String argument, String whitespaceReplacement) {
+        Matcher matcher = WHITESPACED_OPTION_PATTERN.matcher(argument);
+        if (matcher.find()) {
+            return argument.replaceFirst("\\s+", "=");
+        }
+        return argument;
+    }
 }
