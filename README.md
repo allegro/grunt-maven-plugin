@@ -17,8 +17,12 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
     <artifactId>grunt-maven-plugin</artifactId>
     <version>1.0.2</version>
     <configuration>
-	<!-- relative to src/main/webapp/, default: static -->
+        <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
+        <!-- example options usage to get verbose output in logs -->
+        <gruntOptions>
+            <gruntOption>--verbose</gruntOption>
+        </gruntOptions>
     </configuration>
     <executions>
         <execution>
@@ -75,15 +79,27 @@ Since plugin creates own target dir, it should be added to ignored resources in 
 
 Plugin options available in `<configuration>...</configuration>` are:
 
+#### misc
+
 * **showColors** : should Grunt and npm use color output; defaults to *false*
-* **target** : name of Grunt target to run (defaults to null, default Grunt target is run)
+
+#### environment
+
 * **gruntBuildDirectory** : path to Grunt build directory (target for Grunt); defaults to *${basedir}/target-grunt*
 * **sourceDirectory** : path to directory containing source JavaScript project directory; defaults to *${basedir}/src/main/webapp*
 * **jsSourceDirectory** : name of directory relative to *sourceDirectory*, which contents are going to be copied to *jsTargetDirectory*; defaults to *static*
+
+#### node
+
 * **nodeExecutable** : name of globally available **node** executable; defaults to *node*
+* **npmExecutable** : name of globally available **npm** executable; defaults to *npm*
+
+#### grunt options
+
+* **target** : name of Grunt target to run (defaults to null, default Grunt target is run)
+* **gruntOptions** : list of custom options passed to grunt (defaults to empty)
 * **gruntExecutable** : name of **grunt** executable; defaults to *grunt*
 * **runGruntWithNode** : if Grunt executable is a js script, it needs to be run using node, ex: `node path/to/grunt`; defaults to *false*
-* **npmExecutable** : name of globally available **npm** executable; defaults to *npm*
 
 ## Execution goals
 
@@ -180,6 +196,8 @@ You should see process output each time static sources change.
 
 ## Changelog
 
+* **1.0.3** (work-in-progress)
+  * passing custom options to grunt executable ( #8 )
 * **1.0.2** (15.10.2013)
   * option to disable npm and grunt color output, by default no colors are shown as it looks bad in Maven logs ( #3 )
 * **1.0.1** (13.09.2013)
