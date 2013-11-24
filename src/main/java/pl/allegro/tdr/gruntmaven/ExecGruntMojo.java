@@ -88,7 +88,6 @@ public class ExecGruntMojo extends AbstractExecutableMojo {
 
     private void appendOptions(List<Element> arguments) {
         for (String option : gruntOptions) {
-            getLog().info(normalizeArgument(option, "="));
             arguments.add(element(name("argument"), normalizeArgument(option, "=")));
         }
     }

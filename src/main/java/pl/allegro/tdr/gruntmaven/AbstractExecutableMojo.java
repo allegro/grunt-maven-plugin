@@ -180,7 +180,10 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
     protected abstract Element[] getArguments();
 
     /**
-     * Normalization checks for any whitespaces
+     * Normalization checks if argument contains whitespace character between
+     * argument name and it's value, if so it replaces the whitespace with provided
+     * replacement. Normalization is needed, because mojo-exec discards all
+     * characters after first whitespace.
      */
     protected String normalizeArgument(String argument, String whitespaceReplacement) {
         Matcher matcher = WHITESPACED_OPTION_PATTERN.matcher(argument);
