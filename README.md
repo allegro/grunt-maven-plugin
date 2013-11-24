@@ -15,7 +15,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -225,8 +225,9 @@ You should see process output each time static sources change.
 
 ## Changelog
 
-* **1.0.3** (work-in-progress)
+* **1.0.3** (24.11.2013)
   * passing custom options to grunt executable ( #8 )
+  * ability to use external or preinstalled node_modules ( #6 )
 * **1.0.2** (15.10.2013)
   * option to disable npm and grunt color output, by default no colors are shown as it looks bad in Maven logs ( #3 )
 * **1.0.1** (13.09.2013)
