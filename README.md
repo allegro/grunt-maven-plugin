@@ -63,7 +63,7 @@ When you want to use tool like [frontend-maven-plugin](https://github.com/eirsle
 to install node and npm locally or when you have commited-in **node_modules** directory
 (not really recommended, see [npm shronkwrap](https://npmjs.org/doc/shrinkwrap.html) to
 freeze module versions), you can make **grunt-maven-plugin** use preinstalled
-node_modules. Just replace **npm** goal with **link** and add **nodeModulesPath**
+node_modules. Just replace **npm** goal with **link-node-modules** and add **nodeModulesPath**
 to configuration options. Example:
 
 ```xml
@@ -74,7 +74,7 @@ to configuration options. Example:
         <execution>
             <goals>
                 <goal>create-resources</goal>
-                <goal>link</goal>
+                <goal>link-node-modules</goal>
                 <goal>grunt</goal>
             </goals>
         </execution>
