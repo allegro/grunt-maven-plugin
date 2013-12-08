@@ -15,7 +15,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -235,7 +235,7 @@ You should see process output each time static sources change.
 ## Changelog
 
 * **1.0.4** (8.12.2013)
-  * explicit declaration of resources filtered on created-resource goal
+  * explicit declaration of resources filtered on create-resources goal
 * **1.0.3** (24.11.2013)
   * passing custom options to grunt executable ( #8 )
   * ability to use external or preinstalled node_modules ( #6 )
