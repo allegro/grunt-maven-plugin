@@ -15,11 +15,13 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
+import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import pl.allegro.tdr.gruntmaven.resources.Resource;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 /**
@@ -30,6 +32,14 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
  */
 @Mojo(name = "create-resources", defaultPhase = LifecyclePhase.VALIDATE)
 public class CreateResourcesMojo extends BaseMavenGruntMojo {
+
+    private static final String INNER_PROPERTIES_RESOURCE_NAME = "maven-inner-properties.json";
+
+    private static final String MAVEN_PROPERTIES_RESOURCE_NAME = "maven-properties.json";
+
+    private static final String WORKFLOW_PROPERTIES_RESOURCE_NAME = "maven-workflow-properties.json";
+
+    private static final String WORKFLOW_TASK_RESOURCE_NAME = "maven-workflow.js";
 
     /**
      * Resources plugin groupId.
@@ -57,10 +67,18 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
      * version (see maven-resources-plugin documentation for more details),
      * defaults to true.
      */
-    @Parameter(property = "overwriteResources", defaultValue="true")
+    @Parameter(property = "overwriteResources", defaultValue = "true")
     private boolean overwriteResources;
 
+    /**
+     * Name of resources that should be filtered by Maven. When using integrated
+     * workflow, be sure to make Grunt ignore there resources, as it will overwrite
+     * filtered values.
+     */
+    @Parameter(property = "filteredResources")
+    private String[] filteredResources;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         executeMojo(plugin(
                 groupId(RESOURCES_MAVEN_GROUP),
@@ -68,9 +86,43 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                 version(mavenResourcesPluginVersion)),
                 goal(RESOURCES_GOAL),
                 configuration(
-                element(name("overwrite"), Boolean.toString(overwriteResources)),
-                element(name("outputDirectory"), gruntBuildDirectory),
-                element(name("resources"), element(name("resource"), element(name("directory"), sourceDirectory + "/" + jsSourceDirectory)))),
+                        element(name("overwrite"), Boolean.toString(overwriteResources)),
+                        element(name("outputDirectory"), gruntBuildDirectory),
+                        element(name("resources"),
+                                element(name("resource"),
+                                        element(name("directory"), sourceDirectory + "/" + jsSourceDirectory)
+                                ),
+                                element(name("resource"),
+                                        element(name("directory"), sourceDirectory + "/" + jsSourceDirectory),
+                                        element(name("includes"), createFilteredResources()),
+                                        element(name("filtering"), "true")
+                                )
+                        )),
                 executionEnvironment(mavenProject, mavenSession, pluginManager));
+        createInnerPropertiesResource();
+        createIntegratedWorkflowDefaults();
     }
+
+    private Element[] createFilteredResources() {
+        Element[] elements = new Element[filteredResources.length];
+        for (int index = 0; index < filteredResources.length; ++index) {
+            elements[index] = element(name("include"), filteredResources[index]);
+        }
+        return elements;
+    }
+
+    private void createInnerPropertiesResource() {
+        Resource.from("/" + INNER_PROPERTIES_RESOURCE_NAME, getLog())
+                .withFilter("sourceDirectory", sourceDirectory)
+                .withFilter("jsSourceDirectory", jsSourceDirectory)
+                .copyAndOverwrite(gruntBuildDirectory + File.separator + INNER_PROPERTIES_RESOURCE_NAME);
+    }
+
+    private void createIntegratedWorkflowDefaults() {
+        Resource.from("/" + WORKFLOW_PROPERTIES_RESOURCE_NAME, getLog())
+                .copy(gruntBuildDirectory + File.separator + WORKFLOW_PROPERTIES_RESOURCE_NAME);
+        Resource.from("/" + WORKFLOW_TASK_RESOURCE_NAME, getLog())
+                .copy(gruntBuildDirectory + File.separator + WORKFLOW_TASK_RESOURCE_NAME);
+    }
+
 }

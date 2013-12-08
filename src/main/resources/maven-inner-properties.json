@@ -1,0 +1,4 @@
+{
+    "sourceDirectory": "${sourceDirectory}",
+    "jsSourceDirectory": "${jsSourceDirectory}"
+}

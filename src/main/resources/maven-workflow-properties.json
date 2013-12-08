@@ -1,0 +1,4 @@
+{
+    "distDirectory": "dist",
+    "distFilePatterns": ["app.min.js", "js/**", "!js/test/**"]
+}
