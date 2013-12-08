@@ -19,10 +19,17 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
+
         <!-- example options usage to get verbose output in logs -->
         <gruntOptions>
             <gruntOption>--verbose</gruntOption>
         </gruntOptions>
+
+        <!-- example options usage to filter variables in given resource -->
+        <filteredResources>
+            <filteredResource>maven-properties.json</filteredResources>
+        </filteredResources>
+
     </configuration>
     <executions>
         <execution>
@@ -110,6 +117,8 @@ Plugin options available in `<configuration>...</configuration>` are:
 #### misc
 
 * **showColors** : should Grunt and npm use color output; defaults to *false*
+* **filteredResources** : list of files (or expressions) that will be filtered using **maven-resources-plugin** when creating resources,
+remember to exclude those files from integrated workflow config, as else Grunt will override filtered values
 
 #### environment
 
@@ -186,8 +195,8 @@ There are two Grunt modules that need to be imported: **grunt-contrib-watch** an
 ```javascript
 /*...*/
     copy: {
-	targetGrunt: { // copy from webapp static src to target-grunt
-	    files: [ { expand: true, cwd: '../src/main/webapp/static/', src: './**', dest: './' } ]
+	targetGrunt: { // copy from webapp static src to target-grunt except for maven filtered files
+	    files: [ { expand: true, cwd: '../src/main/webapp/static/', src: ['./**', '!maven-properties.json'], dest: './' } ]
 	},
 	dist: { // copy results of Grunt compilation to target-grunt/dist
 	    files: [ { expand: true, src: ['app.min.js', 'js/**', '!js/test/**'], dest: 'dist/' } ]
@@ -225,6 +234,8 @@ You should see process output each time static sources change.
 
 ## Changelog
 
+* **1.0.4** (8.12.2013)
+  * explicit declaration of resources filtered on created-resource goal
 * **1.0.3** (24.11.2013)
   * passing custom options to grunt executable ( #8 )
   * ability to use external or preinstalled node_modules ( #6 )

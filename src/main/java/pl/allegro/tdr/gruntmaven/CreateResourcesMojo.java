@@ -57,10 +57,18 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
      * version (see maven-resources-plugin documentation for more details),
      * defaults to true.
      */
-    @Parameter(property = "overwriteResources", defaultValue="true")
+    @Parameter(property = "overwriteResources", defaultValue = "true")
     private boolean overwriteResources;
 
+    /**
+     * Name of resources that should be filtered by Maven. When using integrated
+     * workflow, be sure to make Grunt ignore there resources, as it will overwrite
+     * filtered values.
+     */
+    @Parameter(property = "filteredResources")
+    private String[] filteredResources;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         executeMojo(plugin(
                 groupId(RESOURCES_MAVEN_GROUP),
@@ -68,9 +76,26 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                 version(mavenResourcesPluginVersion)),
                 goal(RESOURCES_GOAL),
                 configuration(
-                element(name("overwrite"), Boolean.toString(overwriteResources)),
-                element(name("outputDirectory"), gruntBuildDirectory),
-                element(name("resources"), element(name("resource"), element(name("directory"), sourceDirectory + "/" + jsSourceDirectory)))),
+                        element(name("overwrite"), Boolean.toString(overwriteResources)),
+                        element(name("outputDirectory"), gruntBuildDirectory),
+                        element(name("resources"),
+                                element(name("resource"),
+                                        element(name("directory"), sourceDirectory + "/" + jsSourceDirectory)
+                                ),
+                                element(name("resource"),
+                                        element(name("directory"), sourceDirectory + "/" + jsSourceDirectory),
+                                        element(name("includes"), createFilteredResources()),
+                                        element(name("filtering"), "true")
+                                )
+                        )),
                 executionEnvironment(mavenProject, mavenSession, pluginManager));
+    }
+
+    private Element[] createFilteredResources() {
+        Element[] elements = new Element[filteredResources.length];
+        for (int index = 0; index < filteredResources.length; ++index) {
+            elements[index] = element(name("include"), filteredResources[index]);
+        }
+        return elements;
     }
 }
