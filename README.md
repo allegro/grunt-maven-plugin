@@ -27,7 +27,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 
         <!-- example options usage to filter variables in given resource -->
         <filteredResources>
-            <filteredResource>maven-properties.json</filteredResources>
+            <filteredResource>maven-properties.json</filteredResource>
         </filteredResources>
 
     </configuration>
