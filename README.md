@@ -1,11 +1,11 @@
 # grunt-maven-plugin
 
-**grunt-maven-plugin** plugin allows to integrate **Grunt** tasks into **Maven** build process. **Grunt** [http://gruntjs.com/] is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and *nix systems.
+**grunt-maven-plugin** plugin allows to integrate **Grunt** tasks into **Maven** build process. [**Grunt**](http://gruntjs.com/) is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and \*nix systems.
 
 ## Prerequisites
 
-The only required dependency is **nodejs** [http://nodejs.org/] with **npm**.
-Globally installed **grunt-cli** [http://gruntjs.com/getting-started] is optional and preferred, but not necessary, as installing custom node modules can be problematic in some environments (ex. CI servers). Additional configuration is needed when using local **grunt-cli**.
+The only required dependency is [**nodejs**](http://nodejs.org/) with **npm**.
+Globally installed [**grunt-cli**](http://gruntjs.com/getting-started) is optional and preferred, but not necessary, as installing custom node modules can be problematic in some environments (ex. CI servers). Additional configuration is needed when using local **grunt-cli**.
 
 ## Usage
 
