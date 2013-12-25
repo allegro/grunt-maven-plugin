@@ -15,7 +15,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.0.4</version>
+    <version>1.1.0</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
