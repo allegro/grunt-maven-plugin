@@ -1,11 +1,11 @@
 # grunt-maven-plugin
 
-**grunt-maven-plugin** plugin allows to integrate **Grunt** tasks into **Maven** build process. **Grunt** [http://gruntjs.com/] is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and *nix systems.
+**grunt-maven-plugin** plugin allows to integrate **Grunt** tasks into **Maven** build process. [**Grunt**](http://gruntjs.com/) is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and \*nix systems.
 
 ## Prerequisites
 
-The only required dependency is **nodejs** [http://nodejs.org/] with **npm**.
-Globally installed **grunt-cli** [http://gruntjs.com/getting-started] is optional and preferred, but not necessary, as installing custom node modules can be problematic in some environments (ex. CI servers). Additional configuration is needed when using local **grunt-cli**.
+The only required dependency is [**nodejs**](http://nodejs.org/) with **npm**.
+Globally installed [**grunt-cli**](http://gruntjs.com/getting-started) is optional and preferred, but not necessary, as installing custom node modules can be problematic in some environments (ex. CI servers). Additional configuration is needed when using local **grunt-cli**.
 
 ## Usage
 
@@ -15,14 +15,21 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
+
         <!-- example options usage to get verbose output in logs -->
         <gruntOptions>
             <gruntOption>--verbose</gruntOption>
         </gruntOptions>
+
+        <!-- example options usage to filter variables in given resource -->
+        <filteredResources>
+            <filteredResource>maven-properties.json</filteredResource>
+        </filteredResources>
+
     </configuration>
     <executions>
         <execution>
@@ -63,7 +70,7 @@ When you want to use tool like [frontend-maven-plugin](https://github.com/eirsle
 to install node and npm locally or when you have commited-in **node_modules** directory
 (not really recommended, see [npm shronkwrap](https://npmjs.org/doc/shrinkwrap.html) to
 freeze module versions), you can make **grunt-maven-plugin** use preinstalled
-node_modules. Just replace **npm** goal with **link** and add **nodeModulesPath**
+node_modules. Just replace **npm** goal with **link-node-modules** and add **nodeModulesPath**
 to configuration options. Example:
 
 ```xml
@@ -74,7 +81,7 @@ to configuration options. Example:
         <execution>
             <goals>
                 <goal>create-resources</goal>
-                <goal>link</goal>
+                <goal>link-node-modules</goal>
                 <goal>grunt</goal>
             </goals>
         </execution>
@@ -110,6 +117,8 @@ Plugin options available in `<configuration>...</configuration>` are:
 #### misc
 
 * **showColors** : should Grunt and npm use color output; defaults to *false*
+* **filteredResources** : list of files (or expressions) that will be filtered using **maven-resources-plugin** when creating resources,
+remember to exclude those files from integrated workflow config, as else Grunt will override filtered values
 
 #### environment
 
@@ -186,8 +195,8 @@ There are two Grunt modules that need to be imported: **grunt-contrib-watch** an
 ```javascript
 /*...*/
     copy: {
-	targetGrunt: { // copy from webapp static src to target-grunt
-	    files: [ { expand: true, cwd: '../src/main/webapp/static/', src: './**', dest: './' } ]
+	targetGrunt: { // copy from webapp static src to target-grunt except for maven filtered files
+	    files: [ { expand: true, cwd: '../src/main/webapp/static/', src: ['./**', '!maven-properties.json'], dest: './' } ]
 	},
 	dist: { // copy results of Grunt compilation to target-grunt/dist
 	    files: [ { expand: true, src: ['app.min.js', 'js/**', '!js/test/**'], dest: 'dist/' } ]
@@ -225,6 +234,8 @@ You should see process output each time static sources change.
 
 ## Changelog
 
+* **1.0.4** (8.12.2013)
+  * explicit declaration of resources filtered on create-resources goal
 * **1.0.3** (24.11.2013)
   * passing custom options to grunt executable ( #8 )
   * ability to use external or preinstalled node_modules ( #6 )
