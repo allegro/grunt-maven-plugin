@@ -5,8 +5,8 @@ module.exports = function(grunt) {
 
     var mavenTasksPath = path.resolve('maven-tasks');
 
-    var mavenProperties = grunt.file.readJSON(path.join(mavenTasksPath, 'maven-inner-properties.json'));
-    var workflowProperties = grunt.file.readJSON('maven-workflow-properties.json');
+    var mavenProperties = readJSONWithCustomOverride(grunt, path.join(mavenTasksPath, 'maven-inner-properties.json'), 'maven-custom-inner-properties.json');
+    var workflowProperties = readJSONWithCustomOverride(grunt, 'maven-workflow-properties.json', 'maven-custom-workflow-properties.json');
 
     var copySrcToGruntTargetFiles = ['./**'];
     for(var i = 0; i < mavenProperties.filteredFiles.length; ++i) {
@@ -58,3 +58,15 @@ module.exports = function(grunt) {
     });
 
 };
+
+function readJSONWithCustomOverride(grunt, path, overridePath) {
+    var properties = grunt.file.readJSON(path);
+    if(grunt.file.exists(overridePath)) {
+        var overridingProperties = grunt.file.readJSON(overridePath);
+        for(var attr in overridingProperties) {
+            properties[attr] = overridingProperties[attr];
+        }
+    }
+
+    return properties;
+}
