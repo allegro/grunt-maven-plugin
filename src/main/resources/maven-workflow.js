@@ -1,19 +1,60 @@
-module.exports = {
-    copy: {
-        targetGrunt: { // copy from webapp static src to target-grunt
-            files: [ { expand: true, cwd: '../src/main/webapp/static/', src: './**', dest: './' } ]
-        },
-        dist: { // copy results of Grunt compilation to target-grunt/dist
-            files: [ { expand: true, src: ['app.min.js', 'js/**', '!js/test/**'], dest: 'dist/' } ]
-        },
-        targetMaven: { // copy dist files to exploded WAR target
-            files: [ { expand: true, cwd: './dist', src: ['./**'], dest: '../target/<war_name>/static/' } ]
-        }
-    },
-    watch: {
-        maven: { // observe files in webapp static src
-            files: '../src/main/webapp/static/**',
-                tasks: ['copy:targetGrunt', 'default']
-        }
-    },
+
+var path = require('path');
+
+module.exports = function(grunt) {
+
+    var mavenTasksPath = path.resolve('maven-tasks');
+
+    var mavenProperties = grunt.file.readJSON(path.join(mavenTasksPath, 'maven-inner-properties.json'));
+    var workflowProperties = grunt.file.readJSON('maven-workflow-properties.json');
+
+    var copySrcToGruntTargetFiles = ['./**'];
+    for(var i = 0; i < mavenProperties.filteredFiles.length; ++i) {
+        copySrcToGruntTargetFiles.push('!./' + mavenProperties.filteredFiles[i]);
+    }
+
+    var copySrcToGruntTaget = {
+        files: [{
+                expand: true,
+                cwd: path.join(mavenProperties.projectRootPath, mavenProperties.sourceDirectory, mavenProperties.jsSourceDirectory),
+                src: copySrcToGruntTargetFiles,
+                dest: './'
+            }]
+    };
+
+    var copyGruntTargetToDist = {
+        files: [{
+                expand: true,
+                src: workflowProperties.distFilePatterns,
+                dest: workflowProperties.distDirectory
+            }]
+    };
+
+    var copyDistToMavenTarget = {
+        files: [{
+                expand: true,
+                cwd: workflowProperties.distDirectory,
+                src: ['./**'],
+                dest: path.join(mavenProperties.targetPath, workflowProperties.warName, mavenProperties.jsSourceDirectory)
+            }]
+    };
+
+
+    var watchedFiles = path.join(mavenProperties.projectRootPath, mavenProperties.sourceDirectory, mavenProperties.jsSourceDirectory) + "/**";
+
+    grunt.config.set('copy.mavenSrcToGruntTaget', copySrcToGruntTaget);
+    grunt.config.set('watch.maven.files', watchedFiles);
+
+    grunt.registerTask('maven', 'grunt-maven workflow task.', function() {
+
+        grunt.config.set('copy.mavenGruntTargetToDist', copyGruntTargetToDist);
+        grunt.config.set('copy.mavenDistToMavenTarget', copyDistToMavenTarget);
+
+        grunt.task.run(['copy:mavenGruntTargetToDist', 'copy:mavenDistToMavenTarget']);
+    });
+
+    grunt.registerTask('maven-watch', 'grunt-maven workflow task.', function() {
+        grunt.task.run(['copy:mavenSrcToGruntTaget']);
+    });
+
 };

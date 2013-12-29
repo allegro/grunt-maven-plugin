@@ -16,6 +16,7 @@
 package pl.allegro.tdr.gruntmaven;
 
 import java.io.File;
+import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -35,11 +36,13 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
     private static final String INNER_PROPERTIES_RESOURCE_NAME = "maven-inner-properties.json";
 
-    private static final String MAVEN_PROPERTIES_RESOURCE_NAME = "maven-properties.json";
-
     private static final String WORKFLOW_PROPERTIES_RESOURCE_NAME = "maven-workflow-properties.json";
 
     private static final String WORKFLOW_TASK_RESOURCE_NAME = "maven-workflow.js";
+
+    private static final String WORKFLOW_TASKS_DIRECTORY = "maven-tasks";
+
+    private static final int FILTERED_RESOURCES_JSON_LENGTH = 100;
 
     /**
      * Resources plugin groupId.
@@ -90,7 +93,8 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                         element(name("outputDirectory"), gruntBuildDirectory),
                         element(name("resources"),
                                 element(name("resource"),
-                                        element(name("directory"), sourceDirectory + "/" + jsSourceDirectory)
+                                        element(name("directory"), sourceDirectory + "/" + jsSourceDirectory),
+                                        element(name("filtering"), "false")
                                 ),
                                 element(name("resource"),
                                         element(name("directory"), sourceDirectory + "/" + jsSourceDirectory),
@@ -99,30 +103,66 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                                 )
                         )),
                 executionEnvironment(mavenProject, mavenSession, pluginManager));
+
+        createWorkflowTasksDirectory();
         createInnerPropertiesResource();
         createIntegratedWorkflowDefaults();
     }
 
+    private void createWorkflowTasksDirectory() {
+        File file = new File(pathToWorkflowTasksDirectory());
+        if(!file.exists()) {
+            file.mkdir();
+        }
+    }
+
     private Element[] createFilteredResources() {
-        Element[] elements = new Element[filteredResources.length];
+        Element[] elements = new Element[filteredResources.length + 1];
+
         for (int index = 0; index < filteredResources.length; ++index) {
             elements[index] = element(name("include"), filteredResources[index]);
         }
+        // always filter workflow properties
+        elements[filteredResources.length] = element(name("include"), WORKFLOW_PROPERTIES_RESOURCE_NAME);
+
         return elements;
     }
 
     private void createInnerPropertiesResource() {
         Resource.from("/" + INNER_PROPERTIES_RESOURCE_NAME, getLog())
+                .withFilter("projectRootPath", basedir())
+                .withFilter("targetPath", target())
                 .withFilter("sourceDirectory", sourceDirectory)
                 .withFilter("jsSourceDirectory", jsSourceDirectory)
-                .copyAndOverwrite(gruntBuildDirectory + File.separator + INNER_PROPERTIES_RESOURCE_NAME);
+                .withFilter("filteredFiles", filteredResourcesAsJSONArray())
+                .copyAndOverwrite(pathToWorkflowTasksDirectory() + INNER_PROPERTIES_RESOURCE_NAME);
+    }
+
+    private String filteredResourcesAsJSONArray() {
+        StringBuilder builder = new StringBuilder(FILTERED_RESOURCES_JSON_LENGTH);
+        builder.append("[");
+
+        for (int index = 0; index < filteredResources.length; ++index) {
+            builder.append("\"").append(filteredResources[index]).append("\"").append(", ");
+        }
+        builder.append("\"").append(WORKFLOW_PROPERTIES_RESOURCE_NAME).append("\"");
+
+        builder.append("]");
+        return builder.toString();
     }
 
     private void createIntegratedWorkflowDefaults() {
         Resource.from("/" + WORKFLOW_PROPERTIES_RESOURCE_NAME, getLog())
-                .copy(gruntBuildDirectory + File.separator + WORKFLOW_PROPERTIES_RESOURCE_NAME);
+                .copy(pathToGruntBuildDirectory() + WORKFLOW_PROPERTIES_RESOURCE_NAME);
         Resource.from("/" + WORKFLOW_TASK_RESOURCE_NAME, getLog())
-                .copy(gruntBuildDirectory + File.separator + WORKFLOW_TASK_RESOURCE_NAME);
+                .copyAndOverwrite(pathToWorkflowTasksDirectory() + WORKFLOW_TASK_RESOURCE_NAME);
     }
 
+    private String pathToWorkflowTasksDirectory() {
+        return pathToGruntBuildDirectory() + WORKFLOW_TASKS_DIRECTORY + File.separator;
+    }
+
+    private String pathToGruntBuildDirectory() {
+        return gruntBuildDirectory + File.separator;
+    }
 }

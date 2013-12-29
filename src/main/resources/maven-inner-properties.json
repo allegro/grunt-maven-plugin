@@ -1,4 +1,7 @@
 {
+    "projectRootPath": "${projectRootPath}",
+    "targetPath": "${targetPath}",
     "sourceDirectory": "${sourceDirectory}",
-    "jsSourceDirectory": "${jsSourceDirectory}"
+    "jsSourceDirectory": "${jsSourceDirectory}",
+    "filteredFiles": ${filteredFiles}
 }

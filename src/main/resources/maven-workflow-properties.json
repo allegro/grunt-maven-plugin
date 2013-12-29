@@ -1,4 +1,5 @@
 {
     "distDirectory": "dist",
-    "distFilePatterns": ["app.min.js", "js/**", "!js/test/**"]
+    "distFilePatterns": ["app.min.js", "js/**", "!js/test/**"],
+    "warName": "${project.build.finalName}"
 }
