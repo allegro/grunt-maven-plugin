@@ -165,7 +165,7 @@ This gives little room to integrate other processes in between. Workflow utilizi
 1. user changes *src/webapp/static/hello.js*
 1. Grunt detects changes, copies *hello.js* to *target-grunt/hello.js*
 1. run Grunt tasks, produce *target-grunt/dist/hello.min.js* with source map *target-grunt/dist/hello.map.js*
-1. Grunt copies results to *target/_war_name_/static*
+1. Grunt copies results to *target/warname/static*
 
 Now what happens inside *target-grunt* is for us to decide, it can be virtually anything - minification, less compilation, running
 JS tests, JS linting. Anything Grunt can do, just like during *heavy* build process.
