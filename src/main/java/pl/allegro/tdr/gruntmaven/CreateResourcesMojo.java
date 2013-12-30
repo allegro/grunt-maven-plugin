@@ -36,8 +36,6 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
     private static final String INNER_PROPERTIES_RESOURCE_NAME = "maven-inner-properties.json";
 
-    private static final String WORKFLOW_PROPERTIES_RESOURCE_NAME = "maven-workflow-properties.json";
-
     private static final String WORKFLOW_TASK_RESOURCE_NAME = "maven-workflow.js";
 
     private static final String WORKFLOW_TASKS_DIRECTORY = "maven-tasks";
@@ -106,24 +104,22 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
         createWorkflowTasksDirectory();
         createInnerPropertiesResource();
-        createIntegratedWorkflowDefaults();
+        createWorkflowTask();
     }
 
     private void createWorkflowTasksDirectory() {
         File file = new File(pathToWorkflowTasksDirectory());
-        if(!file.exists()) {
+        if (!file.exists()) {
             file.mkdir();
         }
     }
 
     private Element[] createFilteredResources() {
-        Element[] elements = new Element[filteredResources.length + 1];
+        Element[] elements = new Element[filteredResources.length];
 
         for (int index = 0; index < filteredResources.length; ++index) {
             elements[index] = element(name("include"), filteredResources[index]);
         }
-        // always filter workflow properties
-        elements[filteredResources.length] = element(name("include"), WORKFLOW_PROPERTIES_RESOURCE_NAME);
 
         return elements;
     }
@@ -142,18 +138,19 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
         StringBuilder builder = new StringBuilder(FILTERED_RESOURCES_JSON_LENGTH);
         builder.append("[");
 
-        for (int index = 0; index < filteredResources.length; ++index) {
+        int index;
+        for (index = 0; index < filteredResources.length; ++index) {
             builder.append("\"").append(filteredResources[index]).append("\"").append(", ");
         }
-        builder.append("\"").append(WORKFLOW_PROPERTIES_RESOURCE_NAME).append("\"");
+        if (index > 0) {
+            builder.delete(builder.length() - 2, builder.length());
+        }
 
         builder.append("]");
         return builder.toString();
     }
 
-    private void createIntegratedWorkflowDefaults() {
-        Resource.from("/" + WORKFLOW_PROPERTIES_RESOURCE_NAME, getLog())
-                .copy(pathToGruntBuildDirectory() + WORKFLOW_PROPERTIES_RESOURCE_NAME);
+    private void createWorkflowTask() {
         Resource.from("/" + WORKFLOW_TASK_RESOURCE_NAME, getLog())
                 .copyAndOverwrite(pathToWorkflowTasksDirectory() + WORKFLOW_TASK_RESOURCE_NAME);
     }

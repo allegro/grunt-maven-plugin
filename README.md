@@ -197,48 +197,48 @@ workflow tasks are emebedded in separate Grunt module, which should be loaded by
 grunt.loadTasks('maven-tasks');
 ```
 
-Now there are two additional tasks registered: `maven` and `maven-watch`. `maven` task should be added to default task
-execution after tasks creating deliverables, for example:
+Now there are two additional tasks registered: `maven` and `maven-watch`. `maven` needs some configuration:
+
+```json
+grunt.initConfig({
+    mavenProperties: grunt.file.readJSON('maven-properties.json'),
+
+    maven: {
+        warName: '<%= mavenProperties.warName %>'
+        dist: {
+            dest: 'dist',
+            src: ["<%= pkg.name %>*.js", "js/**", "!js/test/**"]
+        },
+        maven: {
+            src: ["./**"]
+        },
+        watch: {
+            tasks: ['default']
+        }
+    }
+}
+```
+
+* **warName** : name of directory with exploded WAR in Maven target
+* **dist.dest** : name of directory in **target-grunt** where deliverables reside, content of this directory is later copied to WAR
+* **dist.src** : defines which files will be copied from **target-grunt** to **dist.dest**
+* **maven.src** : defines which files will be copied from Maven src to **target-grunt**
+* **watch.tasks** : tasks that should be run when watched resources change (after resources are copied from Maven source to Grunt work dir)
+
+`maven` task should be added to default task execution after tasks creating deliverables, for example:
 
 ```javascript
 grunt.registerTask('default', ['jshint', 'karma', 'less', 'uglify' 'maven']);
 ```
 
-`maven-watch` should be used as a task to run in watch process, it copies files from maven source to Grunt working directory.
-Integrated workflow registers `watch.maven` multitask with files specified, but you need to add tasks:
-
-```javascript
-watch: {
-    maven: {
-        tasks: ['maven-watch', 'default']
-    }
-}
-```
-
-Integrated workflow tasks have own properties, some of them derived straight from **pom.xml** settings to eliminate
-duplication of config, everything gets configured in **pom.xml**.
-
-### Configuring workflow
-
-After first build, file named **maven-workflow-properties.json** will appear in **target-grunt**. This file is read by
-workflow Grunt tasks. It should be added to application sources and configured according to project needs. This file
-is filtered by Maven, so it is possible to use project properties like ${project.version} inside. Available options:
-
-* **gruntTargetFilePatterns** : array or string that adheres to [Grunt src files](http://gruntjs.com/configuring-tasks#files) specification, defines which
-    files will be copied from Maven src to **target-grunt**
-* **distDirectory** : name of directory in **target-grunt** where deliverables reside, content of this directory is later copied to WAR
-* **distFilePatterns** : array or string that adheres to [Grunt src files](http://gruntjs.com/configuring-tasks#files) specification, defines which
-    files will be copied from **target-grunt** to **distDirectory**
-* **warName** name of WAR file in Maven target
+`maven-watch` should be run instead of `watch` to react on Maven resources changes.
 
 ### Deep customization of workflow
 
-It is possible to override **any** workflow configuration during runtime. After reading properties JSON file, workflow
-Grunt task seeks for **maven-custom-\* ** file in **target-grunt** and overrides original properties with custom ones.
-Files to customize are:
-
-* **maven-workflow-properties.json** with **maven-custom-workflow-properties.json**
-* **maven-inner-properties.json** with **maven-custom-inner-properties.json** (maven-inner-properties.json resides in **target-grunt/maven-tasks**)
+It is possible to override inner workflow configuration during runtime. Inner properties are extracted from **pom.xml**
+and used internally inside workflow Grunt tasks. They reside in **target-grunt/maven-tasks/maven-inner-properties.json**.
+After reading inner properties JSON file, workflow task seeks for **maven-custom-inner-properties.json** file in
+**target-grunt** and overrides original properties with custom ones.
 
 ### Configuring IDE
 
@@ -248,7 +248,7 @@ to decide what should be turned off. In Netbeans and IntelliJ no configuration i
 You still have to remember to run Grunt watch process in background so it can monitor changes. It can be run from IDE via grunt-maven-plugin.
 Define custom runner that will run:
 
-    mvn grunt:grunt -Dtarget=watch:maven
+    mvn grunt:grunt -Dtarget=maven-watch
 
 You should see process output each time static sources change.
 
@@ -257,7 +257,8 @@ You should see process output each time static sources change.
 Eclipse is a special case. Unfortunately it does not read WAR from Maven target, instead it keeps own file hierarchy.
 Eclipse developers on the team should use deep workflow customization to override properties used by others. Proposed
 way is to create **maven-custom-inner-properties.json** in Maven sources and add it to **.gitignore**, so it will not pollute
-source repository. Since i have little experience with Eclipse, i would welcome a contribution of sample configuration.
+source repository. Since i have little experience with Eclipse, i would welcome a contribution of sample configuration,
+but most probably it is enough to override **targetPath** property.
 
 
 ## Changelog
