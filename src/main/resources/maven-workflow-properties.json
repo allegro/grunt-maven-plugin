@@ -1,5 +1,6 @@
 {
+    "gruntTargetFilePatterns": ["./**"],
     "distDirectory": "dist",
-    "distFilePatterns": ["app.min.js", "js/**", "!js/test/**"],
+    "distFilePatterns": ["<%= pkg.name %>.min.js", "js/**", "!js/test/**"],
     "warName": "${project.build.finalName}"
 }

@@ -8,7 +8,7 @@ module.exports = function(grunt) {
     var mavenProperties = readJSONWithCustomOverride(grunt, path.join(mavenTasksPath, 'maven-inner-properties.json'), 'maven-custom-inner-properties.json');
     var workflowProperties = readJSONWithCustomOverride(grunt, 'maven-workflow-properties.json', 'maven-custom-workflow-properties.json');
 
-    var copySrcToGruntTargetFiles = ['./**'];
+    var copySrcToGruntTargetFiles = workflowProperties.gruntTargetFilePatterns;
     for(var i = 0; i < mavenProperties.filteredFiles.length; ++i) {
         copySrcToGruntTargetFiles.push('!./' + mavenProperties.filteredFiles[i]);
     }

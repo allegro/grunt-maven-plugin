@@ -222,8 +222,10 @@ duplication of config, everything gets configured in **pom.xml**.
 
 After first build, file named **maven-workflow-properties.json** will appear in **target-grunt**. This file is read by
 workflow Grunt tasks. It should be added to application sources and configured according to project needs. This file
-is filtered by Maven, so it is possible to use project properties like ${proejct.version} inside. Available options:
+is filtered by Maven, so it is possible to use project properties like ${project.version} inside. Available options:
 
+* **gruntTargetFilePatterns** : array or string that adheres to [Grunt src files](http://gruntjs.com/configuring-tasks#files) specification, defines which
+    files will be copied from Maven src to **target-grunt**
 * **distDirectory** : name of directory in **target-grunt** where deliverables reside, content of this directory is later copied to WAR
 * **distFilePatterns** : array or string that adheres to [Grunt src files](http://gruntjs.com/configuring-tasks#files) specification, defines which
     files will be copied from **target-grunt** to **distDirectory**
