@@ -199,7 +199,7 @@ grunt.loadTasks('maven-tasks');
 
 Now there are two additional tasks registered: `maven` and `maven-watch`. `maven` needs some configuration:
 
-```json
+```javascript
 grunt.initConfig({
     mavenProperties: grunt.file.readJSON('maven-properties.json'),
 

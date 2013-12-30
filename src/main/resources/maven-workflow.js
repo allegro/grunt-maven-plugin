@@ -33,19 +33,19 @@ module.exports = function(grunt) {
         grunt.task.run(['copy:mavenGruntTargetToDist', 'copy:mavenDistToMavenTarget']);
     });
 
-    grunt.registerTask('maven-watch', 'grunt-maven workflow task.', function() {
+    grunt.registerTask('maven-watch', 'grunt-maven workflow watch task.', function() {
         var config = grunt.config.get('maven');
         var watchedFiles = path.join(mavenProperties.projectRootPath, mavenProperties.sourceDirectory, mavenProperties.jsSourceDirectory) + "/**";
 
         grunt.config.set('watch.maven', {
             files: watchedFiles,
-            tasks: ['maven-watch-config', 'copy:mavenSrcToGruntTarget'].concat(config.watch.tasks)
+            tasks: ['maven-copy-resources'].concat(config.watch.tasks)
         });
 
         grunt.task.run(['watch:maven']);
     });
 
-    grunt.registerTask('maven-watch-config', '', function() {
+    grunt.registerTask('maven-copy-resources', '', function() {
         var config = grunt.config.get('maven');
 
         var copySrcToGruntTargetFiles = Array.isArray(config.maven.src) ? config.maven.src : [config.maven.src];
@@ -63,6 +63,7 @@ module.exports = function(grunt) {
         };
 
         grunt.config.set('copy.mavenSrcToGruntTarget', copySrcToGruntTarget);
+        grunt.task.run(['copy:mavenSrcToGruntTarget']);
     });
 
 };
