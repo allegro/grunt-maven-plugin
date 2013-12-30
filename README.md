@@ -15,7 +15,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.0.4</version>
+    <version>1.1.0</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -165,7 +165,7 @@ This gives little room to integrate other processes in between. Workflow utilizi
 1. user changes *src/webapp/static/hello.js*
 1. Grunt detects changes, copies *hello.js* to *target-grunt/hello.js*
 1. run Grunt tasks, produce *target-grunt/dist/hello.min.js* with source map *target-grunt/dist/hello.map.js*
-1. Grunt copies results to *target/_war_name_/static*
+1. Grunt copies results to *target/warname/static*
 
 Now what happens inside *target-grunt* is for us to decide, it can be virtually anything - minification, less compilation, running
 JS tests, JS linting. Anything Grunt can do, just like during *heavy* build process.
@@ -190,35 +190,55 @@ Since we want grunt-maven-plugin to take control of what ends up in WAR, we need
 
 ### Configuring Grunt
 
-There are two Grunt modules that need to be imported: **grunt-contrib-watch** and **grunt-contrib-copy**. Configuration:
+There are two Grunt modules that need to be imported: **grunt-contrib-watch** and **grunt-contrib-copy**. Integrated
+workflow tasks are emebedded in separate Grunt module, which should be loaded by adding:
 
 ```javascript
-/*...*/
-    copy: {
-	targetGrunt: { // copy from webapp static src to target-grunt except for maven filtered files
-	    files: [ { expand: true, cwd: '../src/main/webapp/static/', src: ['./**', '!maven-properties.json'], dest: './' } ]
-	},
-	dist: { // copy results of Grunt compilation to target-grunt/dist
-	    files: [ { expand: true, src: ['app.min.js', 'js/**', '!js/test/**'], dest: 'dist/' } ]
-	},
-	targetMaven: { // copy dist files to exploded WAR target
-	    files: [ { expand: true, cwd: './dist', src: ['./**'], dest: '../target/<war_name>/static/' } ]
-	}
-    },
-    /*...*/
-    watch: {
-	maven: { // observe files in webapp static src
-	    files: '../src/main/webapp/static/**',
-            tasks: ['copy:targetGrunt', 'default']
-        }
-    },
-/*...*/
-
-// this is a standard build task
-grunt.registerTask('default', ['jshint', 'karma', 'less', 'uglify' 'copy:dist', 'copy:targetMaven']);
+grunt.loadTasks('maven-tasks');
 ```
 
-Of course you can adjust what tasks are run on file change, maybe there is no need to recompile less or to run tests.
+Now there are two additional tasks registered: `maven` and `maven-watch`. `maven` needs some configuration:
+
+```javascript
+grunt.initConfig({
+    mavenProperties: grunt.file.readJSON('maven-properties.json'),
+
+    maven: {
+        warName: '<%= mavenProperties.warName %>'
+        dist: {
+            dest: 'dist',
+            src: ["<%= pkg.name %>*.js", "js/**", "!js/test/**"]
+        },
+        maven: {
+            src: ["./**"]
+        },
+        watch: {
+            tasks: ['default']
+        }
+    }
+}
+```
+
+* **warName** : name of directory with exploded WAR in Maven target
+* **dist.dest** : name of directory in **target-grunt** where deliverables reside, content of this directory is later copied to WAR
+* **dist.src** : defines which files will be copied from **target-grunt** to **dist.dest**
+* **maven.src** : defines which files will be copied from Maven src to **target-grunt**
+* **watch.tasks** : tasks that should be run when watched resources change (after resources are copied from Maven source to Grunt work dir)
+
+`maven` task should be added to default task execution after tasks creating deliverables, for example:
+
+```javascript
+grunt.registerTask('default', ['jshint', 'karma', 'less', 'uglify' 'maven']);
+```
+
+`maven-watch` should be run instead of `watch` to react on Maven resources changes.
+
+### Deep customization of workflow
+
+It is possible to override inner workflow configuration during runtime. Inner properties are extracted from **pom.xml**
+and used internally inside workflow Grunt tasks. They reside in **target-grunt/maven-tasks/maven-inner-properties.json**.
+After reading inner properties JSON file, workflow task seeks for **maven-custom-inner-properties.json** file in
+**target-grunt** and overrides original properties with custom ones.
 
 ### Configuring IDE
 
@@ -228,12 +248,23 @@ to decide what should be turned off. In Netbeans and IntelliJ no configuration i
 You still have to remember to run Grunt watch process in background so it can monitor changes. It can be run from IDE via grunt-maven-plugin.
 Define custom runner that will run:
 
-    mvn grunt:grunt -Dtarget=watch
+    mvn grunt:grunt -Dtarget=maven-watch
 
 You should see process output each time static sources change.
 
+#### Configuring Eclipse
+
+Eclipse is a special case. Unfortunately it does not read WAR from Maven target, instead it keeps own file hierarchy.
+Eclipse developers on the team should use deep workflow customization to override properties used by others. Proposed
+way is to create **maven-custom-inner-properties.json** in Maven sources and add it to **.gitignore**, so it will not pollute
+source repository. Since i have little experience with Eclipse, i would welcome a contribution of sample configuration,
+but most probably it is enough to override **targetPath** property.
+
+
 ## Changelog
 
+* **1.1.0** (30.12.2013)
+  * integrated workflow as a separate, auto-configured Grunt task
 * **1.0.4** (8.12.2013)
   * explicit declaration of resources filtered on create-resources goal
 * **1.0.3** (24.11.2013)
