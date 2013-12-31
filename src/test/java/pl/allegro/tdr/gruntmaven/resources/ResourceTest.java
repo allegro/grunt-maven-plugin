@@ -71,6 +71,18 @@ public class ResourceTest {
     }
 
     @Test
+    public void shouldChangeWindowsPathBackslashToUnixSlashWhenApplyingFilters() {
+        // given
+        Resource resource = new Resource("/test-resource", mock(Log.class)).withFilter("placeholder", "c:\\windows\\is\\wierd");
+
+        // when
+        resource.copy(baseTargetPath + File.separator + "test-resource");
+
+        // then
+        assertThat(new File(baseTargetPath + File.separator + "test-resource")).hasContent("hello c:/windows/is/wierd");
+    }
+
+    @Test
     public void shouldLogDebugButLeaveFileAloneWhenFileAlreadyExistsAndNotOverwriting() {
         // given
         Log logger = mock(Log.class);

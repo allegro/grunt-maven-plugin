@@ -54,7 +54,7 @@ public class FilterTest {
 
     @Test
     public void shouldNotReplaceUnbracketedPlaceholder() {
-    // given
+        // given
         Filter filter = new Filter("placeholder", "Sparta!");
         String text = "This is placeholder";
 
@@ -63,5 +63,17 @@ public class FilterTest {
 
         // then
         assertThat(filteredText).isEqualTo("This is placeholder");
+    }
+
+    @Test
+    public void shouldReplaceBackslashesWithSlashes() {
+        Filter filter = new Filter("placeholder", "c:\\sparta\\!");
+        String text = "This is ${placeholder}";
+
+        // when
+        String filteredText = filter.filter(text);
+
+        // then
+        assertThat(filteredText).isEqualTo("This is c:/sparta/!");
     }
 }

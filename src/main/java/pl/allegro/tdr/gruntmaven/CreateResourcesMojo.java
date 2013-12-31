@@ -16,7 +16,8 @@
 package pl.allegro.tdr.gruntmaven;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -81,6 +82,7 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+
         executeMojo(plugin(
                 groupId(RESOURCES_MAVEN_GROUP),
                 artifactId(RESOURCES_MAVEN_ARTIFACT),
@@ -89,17 +91,8 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                 configuration(
                         element(name("overwrite"), Boolean.toString(overwriteResources)),
                         element(name("outputDirectory"), gruntBuildDirectory),
-                        element(name("resources"),
-                                element(name("resource"),
-                                        element(name("directory"), sourceDirectory + "/" + jsSourceDirectory),
-                                        element(name("filtering"), "false")
-                                ),
-                                element(name("resource"),
-                                        element(name("directory"), sourceDirectory + "/" + jsSourceDirectory),
-                                        element(name("includes"), createFilteredResources()),
-                                        element(name("filtering"), "true")
-                                )
-                        )),
+                        element(name("resources"), createResourceElements())
+                ),
                 executionEnvironment(mavenProject, mavenSession, pluginManager));
 
         createWorkflowTasksDirectory();
@@ -107,10 +100,34 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
         createWorkflowTask();
     }
 
+    private Element[] createResourceElements() {
+        List<Element> resourceElements = new ArrayList<Element>(2);
+
+        Element normalResourcesElement = element(name("resource"),
+                element(name("directory"), sourceDirectory + "/" + jsSourceDirectory),
+                element(name("includes"),
+                        element(name("include"), "**/*")
+                ),
+                element(name("filtering"), "false")
+        );
+        resourceElements.add(normalResourcesElement);
+
+        if (filteredResources.length > 0) {
+            Element filteredResourcesElement = element(name("resource"),
+                    element(name("directory"), sourceDirectory + "/" + jsSourceDirectory),
+                    element(name("includes"), createFilteredResources()),
+                    element(name("filtering"), "true")
+            );
+            resourceElements.add(filteredResourcesElement);
+        }
+
+        return resourceElements.toArray(new Element[resourceElements.size()]);
+    }
+
     private void createWorkflowTasksDirectory() {
         File file = new File(pathToWorkflowTasksDirectory());
         if (!file.exists()) {
-            file.mkdir();
+            file.mkdirs();
         }
     }
 

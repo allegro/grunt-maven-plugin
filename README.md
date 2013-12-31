@@ -15,7 +15,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -263,6 +263,9 @@ but most probably it is enough to override **targetPath** property.
 
 ## Changelog
 
+* **1.1.1** (31.12.2013)
+  * fixed bug with filtering all resources instead of only chosen
+  * fixed bug with Windows paths in workflow properties
 * **1.1.0** (30.12.2013)
   * integrated workflow as a separate, auto-configured Grunt task
 * **1.0.4** (8.12.2013)

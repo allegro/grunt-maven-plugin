@@ -29,7 +29,7 @@ class Filter {
 
     Filter(String placeholder, String value) {
         this.placeholder = String.format(placeholderFormat, placeholder);
-        this.value = value;
+        this.value = value.replaceAll("\\\\", "/");
     }
 
     String filter(String text) {
