@@ -7,12 +7,12 @@
         <server>
             <id>sonatype-staging-grunt-maven</id>
             <username>${env.NEXUS_USER}</username>
-            <password>${env.NEUXS_PASSWORD}</password>
+            <password>${env.NEXUS_PASSWORD}</password>
         </server>
 	<server>
             <id>sonatype-snapshots-grunt-maven</id>
             <username>${env.NEXUS_USER}</username>
-            <password>${env.NEUXS_PASSWORD}</password>
+            <password>${env.NEXUS_PASSWORD}</password>
         </server>
     </servers>
 
