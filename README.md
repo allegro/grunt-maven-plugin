@@ -15,7 +15,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -263,6 +263,8 @@ but most probably it is enough to override **targetPath** property.
 
 ## Changelog
 
+* **1.1.2** (06.01.2014)
+  * fixed compatibility issue of 1.1.x branch - once again compatible with JDK 5+
 * **1.1.1** (31.12.2013)
   * fixed bug with filtering all resources instead of only chosen
   * fixed bug with Windows paths in workflow properties
@@ -271,12 +273,12 @@ but most probably it is enough to override **targetPath** property.
 * **1.0.4** (8.12.2013)
   * explicit declaration of resources filtered on create-resources goal
 * **1.0.3** (24.11.2013)
-  * passing custom options to grunt executable ( #8 )
-  * ability to use external or preinstalled node_modules ( #6 )
+  * passing custom options to grunt executable
+  * ability to use external or preinstalled node_modules
 * **1.0.2** (15.10.2013)
-  * option to disable npm and grunt color output, by default no colors are shown as it looks bad in Maven logs ( #3 )
+  * option to disable npm and grunt color output, by default no colors are shown as it looks bad in Maven logs
 * **1.0.1** (13.09.2013)
-  * compatibility with Maven 3.1.x ( #1 )
+  * compatibility with Maven 3.1.x
 
 
 ## License
