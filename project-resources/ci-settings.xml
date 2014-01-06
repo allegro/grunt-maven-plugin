@@ -10,7 +10,7 @@
             <password>${env.NEUXS_PASSWORD}</password>
         </server>
 	<server>
-            <id>sonatype-nexus-grunt-maven</id>
+            <id>sonatype-snapshots-grunt-maven</id>
             <username>${env.NEXUS_USER}</username>
             <password>${env.NEUXS_PASSWORD}</password>
         </server>
