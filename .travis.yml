@@ -1,7 +1,4 @@
 language: java
-jdk:
-  - openjdk7
-  - openjdk6
 matrix:
   include:
     - jdk: openjdk7
