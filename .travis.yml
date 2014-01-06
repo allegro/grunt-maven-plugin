@@ -1,6 +1,10 @@
 language: java
 script: "mvn deploy --settings project-resources/ci-settings.xml"
 
+jdk:
+    - openjdk7
+    - openjdk6
+
 branches:
   only:
     - master
