@@ -264,7 +264,7 @@ but most probably it is enough to override **targetPath** property.
 ## Changelog
 
 * **1.1.2** (06.01.2014)
-  * fixed compatibility issue of 1.1.x branch - once again compatible with JDK 5+
+  * fixed compatibility issue of 1.1.x branch - once again compatible with JDK 6+
 * **1.1.1** (31.12.2013)
   * fixed bug with filtering all resources instead of only chosen
   * fixed bug with Windows paths in workflow properties
