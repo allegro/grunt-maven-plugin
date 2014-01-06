@@ -15,19 +15,18 @@
  */
 package pl.allegro.tdr.gruntmaven.resources;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.nio.file.CopyOption;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
+import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.io.InputStreamFacade;
+import org.codehaus.plexus.util.io.RawInputStreamFacade;
 
 /**
  *
@@ -56,31 +55,39 @@ public class Resource {
     }
 
     public void copy(String to) {
-        copyResource(to);
+        copyResource(to, false);
     }
 
     public void copyAndOverwrite(String to) {
-        copyResource(to, StandardCopyOption.REPLACE_EXISTING);
+        copyResource(to, true);
     }
 
-    private void copyResource(String targetPath, CopyOption... options) {
+    private void copyResource(String targetPath, boolean overwrite) {
         try {
             String contents = filter(read());
 
-            Path targetFile = new File(targetPath).toPath();
-            Files.copy(IOUtils.toInputStream(contents), targetFile, options);
-        } catch (FileAlreadyExistsException overwriteException) {
-            logger.debug("Not overwriting file " + targetPath);
+            File targetFile = new File(targetPath);
+            if (!targetFile.exists() || overwrite) {
+                FileUtils.copyStreamToFile(contentAsInputStream(contents), targetFile);
+            } else {
+                logger.debug("Not overwriting file " + targetPath);
+            }
         } catch (IOException exception) {
             throw new ResourceCreationException(resourceName, targetPath, exception);
         }
+    }
+
+    private InputStreamFacade contentAsInputStream(String content) {
+        return new RawInputStreamFacade(
+                new ByteArrayInputStream(content.getBytes())
+        );
     }
 
     private String read() throws IOException {
         InputStream stream = Resource.class.getResourceAsStream(resourceName);
         StringWriter contentsWriter = new StringWriter();
 
-        IOUtils.copy(stream, contentsWriter);
+        IOUtil.copy(stream, contentsWriter);
         return contentsWriter.toString();
     }
 
