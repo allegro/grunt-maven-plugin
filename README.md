@@ -7,6 +7,8 @@
 The only required dependency is [**nodejs**](http://nodejs.org/) with **npm**.
 Globally installed [**grunt-cli**](http://gruntjs.com/getting-started) is optional and preferred, but not necessary, as installing custom node modules can be problematic in some environments (ex. CI servers). Additional configuration is needed when using local **grunt-cli**.
 
+grunt-maven-plugin is compatible with JDK 6+ and Maven 3+.
+
 ## Usage
 
 Add **grunt-maven-plugin** to application build process in your *pom.xml*:
