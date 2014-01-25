@@ -17,7 +17,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -265,6 +265,8 @@ but most probably it is enough to override **targetPath** property.
 
 ## Changelog
 
+* **1.1.3** (25.01.2014)
+  * fixed issue with using custom Grunt target and CLI options together (#20)
 * **1.1.2** (06.01.2014)
   * fixed compatibility issue of 1.1.x branch - once again compatible with JDK 6+
 * **1.1.1** (31.12.2013)
