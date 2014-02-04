@@ -37,10 +37,6 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
     private static final String INNER_PROPERTIES_RESOURCE_NAME = "maven-inner-properties.json";
 
-    private static final String WORKFLOW_TASK_RESOURCE_NAME = "maven-workflow.js";
-
-    private static final String WORKFLOW_TASKS_DIRECTORY = "maven-tasks";
-
     private static final int FILTERED_RESOURCES_JSON_LENGTH = 100;
 
     /**
@@ -97,7 +93,6 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
         createWorkflowTasksDirectory();
         createInnerPropertiesResource();
-        createWorkflowTask();
     }
 
     private Element[] createResourceElements() {
@@ -143,6 +138,8 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
     private void createInnerPropertiesResource() {
         Resource.from("/" + INNER_PROPERTIES_RESOURCE_NAME, getLog())
+                .withFilter("filesToWatch", pathToWatchDirectory() + File.separator + "**")
+                .withFilter("directoryToWatch", pathToWatchDirectory())
                 .withFilter("projectRootPath", basedir())
                 .withFilter("targetPath", target())
                 .withFilter("sourceDirectory", sourceDirectory)
@@ -167,13 +164,12 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
         return builder.toString();
     }
 
-    private void createWorkflowTask() {
-        Resource.from("/" + WORKFLOW_TASK_RESOURCE_NAME, getLog())
-                .copyAndOverwrite(pathToWorkflowTasksDirectory() + WORKFLOW_TASK_RESOURCE_NAME);
+    private String pathToWatchDirectory() {
+        return basedir() + File.separator + sourceDirectory + jsSourceDirectory;
     }
 
     private String pathToWorkflowTasksDirectory() {
-        return pathToGruntBuildDirectory() + WORKFLOW_TASKS_DIRECTORY + File.separator;
+        return pathToGruntBuildDirectory() + File.separator;
     }
 
     private String pathToGruntBuildDirectory() {
