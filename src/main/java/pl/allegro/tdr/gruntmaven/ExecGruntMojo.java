@@ -61,9 +61,15 @@ public class ExecGruntMojo extends AbstractExecutableMojo {
     @Parameter(property = "runGruntWithNode", defaultValue = "false")
     private boolean runGruntWithNode;
 
+    /**
+     * List of options passed to grunt.
+     */
     @Parameter(property = "gruntOptions")
     private String[] gruntOptions;
 
+    /**
+     * Should Maven ignore grunt task errors (for example failing tests) and always finish grunt execution with success.
+     */
     @Parameter(property = "ignoreTasksErrors", defaultValue = "false")
     private boolean ignoreTasksErrors;
 
