@@ -61,6 +61,10 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
      */
     private static final String EXEC_GOAL = "exec";
 
+    private static final String EXEC_SUCCESS_CODES_ELEMENT = "successCodes";
+
+    private static final String EXEC_SUCCESS_CODE_ELEMENT = "successCode";
+
     /**
      * Inject building OS name.
      */
@@ -82,6 +86,10 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Element[] configuration = buildConfigForOS();
+        Element customSuccessCodes = overwriteSuccessCodes();
+        if (customSuccessCodes != null) {
+            configuration = concat(configuration, customSuccessCodes);
+        }
 
         executeMojo(plugin(
                 groupId(EXEC_MAVEN_GROUP),
@@ -157,7 +165,7 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
      * @param array2 second array
      * @return first array + second array
      */
-    protected <T> T[] concat(T[] array1, T[] array2) {
+    protected <T> T[] concat(T[] array1, T... array2) {
         T[] result = Arrays.copyOf(array1, array1.length + array2.length);
         System.arraycopy(array2, 0, result, array1.length, array2.length);
         return result;
@@ -178,6 +186,28 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
      * @return arguments
      */
     protected abstract Element[] getArguments();
+
+    private Element overwriteSuccessCodes() {
+        String[] customCodes = customSuccessCodes();
+        if (customCodes == null) {
+            return null;
+        }
+
+        Element[] successCodesElements = new Element[customCodes.length];
+        for (int index = 0; index < customCodes.length; ++index) {
+            successCodesElements[index] = element(EXEC_SUCCESS_CODE_ELEMENT, customCodes[index]);
+        }
+        return element(EXEC_SUCCESS_CODES_ELEMENT, successCodesElements);
+    }
+
+    /**
+     * Return custom
+     * <pre>successCodes</pre> section of maven-exec-plugin.
+     * Return null if default (0) is fine.
+     */
+    protected String[] customSuccessCodes() {
+        return null;
+    }
 
     /**
      * Normalization checks if argument contains whitespace character between

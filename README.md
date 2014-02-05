@@ -59,8 +59,8 @@ options to plugin configuration and add **grunt-cli** to JS project **package.js
 ```javascript
 {
     "devDepenencies": {
-        "grunt-cli": "~0.1.7",
-        "grunt": "~0.4.1"
+        "grunt-cli": "~0.1.6",
+        "grunt": "~0.4.2"
         /*...*/
     }
 }
