@@ -17,7 +17,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.1.3</version>
+    <version>1.1.4</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -138,6 +138,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 * **target** : name of Grunt target to run (defaults to null, default Grunt target is run)
 * **gruntOptions** : list of custom options passed to grunt (defaults to empty)
+* **ignoreTasksErrors** : ignore failing Grunt tasks errors and finish Maven build with success (ignoring 3 and 6 error code, more on [Grunt exit codes](http://gruntjs.com/api/exit-codes))
 * **gruntExecutable** : name of **grunt** executable; defaults to *grunt*
 * **runGruntWithNode** : if Grunt executable is a js script, it needs to be run using node, ex: `node path/to/grunt`; defaults to *false*
 
@@ -265,6 +266,8 @@ but most probably it is enough to override **targetPath** property.
 
 ## Changelog
 
+* **1.1.4** (05.02.2014)
+  * added option to ignore Grunt task errors (failing tests etc) (#22)
 * **1.1.3** (25.01.2014)
   * fixed issue with using custom Grunt target and CLI options together (#20)
 * **1.1.2** (06.01.2014)
