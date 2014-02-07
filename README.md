@@ -138,7 +138,8 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 * **target** : name of Grunt target to run (defaults to null, default Grunt target is run)
 * **gruntOptions** : list of custom options passed to grunt (defaults to empty)
-* **ignoreTasksErrors** : ignore failing Grunt tasks errors and finish Maven build with success (ignoring 3 and 6 error code, more on [Grunt exit codes](http://gruntjs.com/api/exit-codes))
+* **ignoreTasksErrors** : ignore failing Grunt tasks errors and finish Maven build with success (ignoring 3 and 6 exit code, more on [Grunt exit codes](http://gruntjs.com/api/exit-codes))
+* **ignoreAllErrors** : ignore all Grunt errors and finish Maven build with success (ignoring all exit codes, more on [Grunt exit codes](http://gruntjs.com/api/exit-codes))
 * **gruntExecutable** : name of **grunt** executable; defaults to *grunt*
 * **runGruntWithNode** : if Grunt executable is a js script, it needs to be run using node, ex: `node path/to/grunt`; defaults to *false*
 
