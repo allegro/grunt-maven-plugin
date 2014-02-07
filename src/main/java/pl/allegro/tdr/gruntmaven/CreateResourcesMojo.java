@@ -35,7 +35,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 @Mojo(name = "create-resources", defaultPhase = LifecyclePhase.VALIDATE)
 public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
-    private static final String INNER_PROPERTIES_RESOURCE_NAME = "maven-inner-properties.json";
+    private static final String INNER_PROPERTIES_RESOURCE_NAME = "grunt-maven.json";
 
     private static final int FILTERED_RESOURCES_JSON_LENGTH = 100;
 
