@@ -2,12 +2,25 @@
 
 **grunt-maven-plugin** plugin allows to integrate **Grunt** tasks into **Maven** build process. [**Grunt**](http://gruntjs.com/) is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and \*nix systems.
 
+**grunt-maven-plugin** comes with unique Maven+Grunt Integrated Workflow which removes all impediments present when trying to build project using two different build tools.
+
+
+*Version 1.2.0 intorduces new set of tasks for Maven+Grunt Integrated Workflow. If you were using earlier versions, please consult [migration guide](https://github.com/allegro/grunt-maven-plugin/wiki/Migrating-from-1.1.x-to-1.2.x) before upgrading.*
+
+
 ## Prerequisites
 
 The only required dependency is [**nodejs**](http://nodejs.org/) with **npm**.
 Globally installed [**grunt-cli**](http://gruntjs.com/getting-started) is optional and preferred, but not necessary, as installing custom node modules can be problematic in some environments (ex. CI servers). Additional configuration is needed when using local **grunt-cli**.
 
 grunt-maven-plugin is compatible with JDK 6+ and Maven 3+.
+
+## Motivation
+
+**grunt-maven-plugin** came to life because I needed a good tool to integrate Maven and Grunt. By good i mean not just firing off **grunt** process, but a tool that would respect rules from both backend (Maven) and frontend (Grunt) worlds. No *node_modules* in Maven sources, no Maven *src/main/webapp/..* paths in *Gruntfile.js*.
+
+**grunt-maven-plugin** allows you to create a usual NPM/Grunt project that could be built and understood by any Node developer, and put it somewhere inside Maven project. It can be extracted at any time and nothing should break. On the other side backend developers don't need to worry about pesky *node_modules* wandering around src/ - all dependencies, generated sources and deliverables live in dedicated **target-grunt** directory, doing this part of build the Maven way.
+
 
 ## Usage
 
@@ -17,7 +30,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.1.4</version>
+    <version>1.2.0</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -150,7 +163,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 * **grunt** : executes Grunt in target directory
 * **clean** : deletes *gruntBuildDirectory*
 
-## Integrated workflow
+## Maven+Grunt Integrated workflow
 
 Using grunt-maven-plugin is convenient, but there is still a huge gap between frontend and backend development workflow. Various IDEs (Netbeans, IntelliJ Idea, Eclipse)
 try to ease webapp development by synchronizing changes made in *src/webapp/* to exploded WAR directory in *target/*. This naive approach works as long as there is no
@@ -194,54 +207,51 @@ Since we want grunt-maven-plugin to take control of what ends up in WAR, we need
 
 ### Configuring Grunt
 
-There are two Grunt modules that need to be imported: **grunt-contrib-watch** and **grunt-contrib-copy**. Integrated
-workflow tasks are emebedded in separate Grunt module, which should be loaded by adding:
+**grunt-maven-plugin** has a dedicated NPM Grunt multitasks that make integrated workflow work.
 
-```javascript
-grunt.loadTasks('maven-tasks');
-```
-
-Now there are two additional tasks registered: `maven` and `maven-watch`. `maven` needs some configuration:
-
-```javascript
+```js
 grunt.initConfig({
-    mavenProperties: grunt.file.readJSON('maven-properties.json'),
+  mavenPrepare: {
+    options: {
+      resources: ['**']
+    },
+    prepare: {}
+  },
+  
+  mavenDist: {
+    options: {
+      warName: 'war',
+      deliverables: ['**', '!non-deliverable.js'],
+      gruntDistDir: 'dist'
+    },
+    dist: {}
+  },
+  
+  gruntMavenProperties: grunt.file.readJSON('grunt-maven.json'),
 
+  watch: {
     maven: {
-        warName: '<%= mavenProperties.warName %>'
-        dist: {
-            dest: 'dist',
-            src: ["<%= pkg.name %>*.js", "js/**", "!js/test/**"]
-        },
-        maven: {
-            src: ["./**"]
-        },
-        watch: {
-            tasks: ['default']
-        }
+      files: ['<%= gruntMavenProperties.filesToWatch %>'],
+      tasks: 'default'
     }
-}
+  }
+});
+
+
+grunt.loadNpmTasks('grunt-maven');
+
+grunt.registerTask('default', ['mavenPrepare', 'jshint', 'karma', 'less', 'uglify', 'mavenDist']);
+
 ```
 
-* **warName** : name of directory with exploded WAR in Maven target
-* **dist.dest** : name of directory in **target-grunt** where deliverables reside, content of this directory is later copied to WAR
-* **dist.src** : defines which files will be copied from **target-grunt** to **dist.dest**
-* **maven.src** : defines which files will be copied from Maven src to **target-grunt**
-* **watch.tasks** : tasks that should be run when watched resources change (after resources are copied from Maven source to Grunt work dir)
+For more information please consult documentation of [grunt-maven-npm project](https://github.com/allegro/grunt-maven-npm).
 
-`maven` task should be added to default task execution after tasks creating deliverables, for example:
-
-```javascript
-grunt.registerTask('default', ['jshint', 'karma', 'less', 'uglify' 'maven']);
-```
-
-`maven-watch` should be run instead of `watch` to react on Maven resources changes.
 
 ### Deep customization of workflow
 
 It is possible to override inner workflow configuration during runtime. Inner properties are extracted from **pom.xml**
-and used internally inside workflow Grunt tasks. They reside in **target-grunt/maven-tasks/maven-inner-properties.json**.
-After reading inner properties JSON file, workflow task seeks for **maven-custom-inner-properties.json** file in
+and used internally inside workflow Grunt tasks. They reside in **target-grunt/grunt-maven.json**.
+After reading inner properties JSON file, workflow task seeks for **grunt-maven-custom.json** file in
 **target-grunt** and overrides original properties with custom ones.
 
 ### Configuring IDE
@@ -252,7 +262,7 @@ to decide what should be turned off. In Netbeans and IntelliJ no configuration i
 You still have to remember to run Grunt watch process in background so it can monitor changes. It can be run from IDE via grunt-maven-plugin.
 Define custom runner that will run:
 
-    mvn grunt:grunt -Dtarget=maven-watch
+    mvn grunt:grunt -Dtarget=watch
 
 You should see process output each time static sources change.
 
@@ -260,13 +270,15 @@ You should see process output each time static sources change.
 
 Eclipse is a special case. Unfortunately it does not read WAR from Maven target, instead it keeps own file hierarchy.
 Eclipse developers on the team should use deep workflow customization to override properties used by others. Proposed
-way is to create **maven-custom-inner-properties.json** in Maven sources and add it to **.gitignore**, so it will not pollute
+way is to create **grunt-maven-custom.json** in Maven sources and add it to **.gitignore**, so it will not pollute
 source repository. Since i have little experience with Eclipse, i would welcome a contribution of sample configuration,
 but most probably it is enough to override **targetPath** property.
 
 
 ## Changelog
 
+* **1.2.0** (07.02.2014)
+  * new Maven+Grunt NPM multitasks
 * **1.1.4** (05.02.2014)
   * added option to ignore Grunt task errors (failing tests etc) (#22)
 * **1.1.3** (25.01.2014)
