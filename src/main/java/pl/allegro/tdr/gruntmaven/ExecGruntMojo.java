@@ -31,6 +31,14 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 public class ExecGruntMojo extends AbstractExecutableMojo {
 
     /**
+     * Custom success codes to be registered in maven-exec plugin when we want to ignore
+     * Grunt errors.
+     */
+    private static final String[] IGNORE_GRUNT_TASKS_ERRORS_CUSTOM_CODES = {"0", "3", "6"};
+
+    private static final String[] IGNORE_ALL_GRUNT_ERRORS_CUSTOM_CODES = {"0", "1", "2", "3", "4", "5", "6"};
+
+    /**
      * Name of grunt target, will be passed directly to grunt.
      */
     @Parameter(property = "target", defaultValue = "")
@@ -55,8 +63,23 @@ public class ExecGruntMojo extends AbstractExecutableMojo {
     @Parameter(property = "runGruntWithNode", defaultValue = "false")
     private boolean runGruntWithNode;
 
+    /**
+     * List of options passed to grunt.
+     */
     @Parameter(property = "gruntOptions")
     private String[] gruntOptions;
+
+    /**
+     * Should Maven ignore grunt task errors (for example failing tests) and always finish grunt execution with success.
+     */
+    @Parameter(property = "ignoreTasksErrors", defaultValue = "false")
+    private boolean ignoreTasksErrors;
+
+    /**
+     * Should Maven ignore all grunt errors including fatal ones and always finish grunt execution with success.
+     */
+    @Parameter(property = "ignoreAllErrors", defaultValue = "false")
+    private boolean ignoreAllErrors;
 
     @Override
     protected String getExecutable() {
@@ -91,4 +114,15 @@ public class ExecGruntMojo extends AbstractExecutableMojo {
             arguments.add(element(name("argument"), normalizeArgument(option, "=")));
         }
     }
+
+    @Override
+    protected String[] customSuccessCodes() {
+        if (ignoreAllErrors) {
+            return IGNORE_ALL_GRUNT_ERRORS_CUSTOM_CODES;
+        } else if (ignoreTasksErrors) {
+            return IGNORE_GRUNT_TASKS_ERRORS_CUSTOM_CODES;
+        }
+        return null;
+    }
+
 }
