@@ -23,18 +23,29 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.apache.maven.model.Contributor;
 import org.apache.maven.model.Developer;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 
 public class ResourceFactoryTest {
+	private static final SystemStreamLog mavenLog = new SystemStreamLog();
+	private static final String testDir = "test/target";
+	private static final String gruntVersion =  "0.4.2";
+
+	private JsonNodeFactory factory = new JsonNodeFactory(false);
+	private ObjectMapper mapper = new ObjectMapper();
+
 	private String name = "grunt-maven-plugin";
 	private String version = "1.2.3";
 	private String description = "Testing, 1-2-3...";
@@ -42,6 +53,9 @@ public class ResourceFactoryTest {
 	private Developer dev = new Developer();
 	private Contributor dev2 = new Developer();
 	private Contributor dev3 = new Developer();
+	private Contributor devNameless = new Developer();
+	private Contributor devHomeless = new Developer();
+	private Contributor devNoEmail = new Developer();
 
 	public ResourceFactoryTest() {
 		dev.setName( "Grupa Allegro" );
@@ -55,205 +69,229 @@ public class ResourceFactoryTest {
 		dev3.setName( "Developer Three" );
 		dev3.setUrl( "https://github.com/dev3" );
 		dev3.setEmail( "dev3@domain.com" );
+
+		devNameless.setUrl( "https://github.com/nameless" );
+		devNameless.setEmail( "anon@domain.com" );
+
+		devHomeless.setName( "Homeless" );
+		devHomeless.setEmail( "homeless@domain.com" );
+
+		devNoEmail.setName( "No Email" );
+		devNoEmail.setUrl( "https://github.com/noemail" );
 	}
 
 	@AfterClass
 	public static void cleanup() {
-		new File("test", "Gruntfile.js").delete();
-		new File("test", "package.json").delete();
-		new File("test", "bower.json").delete();
-		new File("test").delete();
-	}
-
-
-	@Test
-	public void shouldCreateAValidGruntfile() {
-		String fileName = "test/Gruntfile.js";
-		ResourceFactory.createGruntfile( fileName, new SystemStreamLog() );
-		File file = new File( fileName );
-		assertTrue( file.exists(), fileName + " doesn't even exist" );
-		try {
-			boolean foundModuleExports = false;
-			BufferedReader in = new BufferedReader( new FileReader( file ) );
-			String line;
-			while( (line = in.readLine()) != null ) {
-				if( "module.exports = function(grunt) {".equals( line ) ) {
-					foundModuleExports = true;
-					break;
-				}
-			}
-			assertTrue( foundModuleExports, "Didn't find 'module.exports = function(grunt) {'" );
-		} catch( Exception e ) {
-			e.printStackTrace();
-			assertNull( e, "unexpected exception: " + e.getMessage() );
-		}
+//		new File(testDir, "Gruntfile.js").delete();
+//		new File(testDir, "package.json").delete();
+//		new File(testDir, "bower.json").delete();
+		new File(testDir).delete();
 	}
 
 	@Test
-	public void testCreateOrUpdatePackageJson() {
-		SystemStreamLog log = new SystemStreamLog();
-		String gruntVersion =  "0.4.2";
+	public void shouldCreateAValidGruntfile() throws IOException {
+		// given
+		String fileName = "Gruntfile.js";
+		File file = new File( testDir, fileName );
+		file.delete();
 
-		try {
-			File packageJsonFile = new File( "test", "package.json" );
-			// ------ First, create the file from scratch ------
-			packageJsonFile.delete();
+		// when
+		ResourceFactory.createGruntfile( testDir, new SystemStreamLog() );
 
-			MavenProject mavenProject = getProjectConfig1();
-			ResourceFactory.createOrUpdatePackageJson( "test", gruntVersion, mavenProject, log );
-			assertTrue( "package.json was not generated", packageJsonFile.exists() );
-
-			JsonNodeFactory factory = new JsonNodeFactory(false);
-			ObjectMapper mapper = new ObjectMapper();
-			ObjectNode rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
-			assertTextNodeEquals( rootNode, "name", "empty-project" );
-			assertTextNodeEquals( rootNode, "version", "0" );
-			assertTextNodeEquals( rootNode, "description", "" );
-			assertTextNodeEquals( rootNode, "homepage", "" );
-			assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"),
-									"grunt", "~" + gruntVersion );
-			assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"),
-									"matchdep", "~0.3.0" );
-			assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"),
-									"grunt-maven", "~1.1.0" );
-
-			// ------ Now update the project and run again ------
-			mavenProject = getProjectConfig2();
-			ResourceFactory.createOrUpdatePackageJson( "test", gruntVersion, mavenProject, log );
-			rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
-
-			// Does the package name really need to follow the maven artifactId?  ...probably not
-			// assertTextNodeEquals( rootNode, "name", name );
-			assertTextNodeEquals( rootNode, "version", version );
-			assertTextNodeEquals( rootNode, "description", description );
-			assertTextNodeEquals( rootNode, "homepage", url );
-
-			ObjectNode authorNode = (ObjectNode)rootNode.get("author");
-			ArrayNode contributors = (ArrayNode)rootNode.get("contributors");
-			assertEquals( "should be two contributors", 2, contributors.size() );
-			ObjectNode dev2Node = (ObjectNode)contributors.get( 0 );
-			ObjectNode dev3Node = (ObjectNode)contributors.get( 1 );
-
-			assertTextNodeEquals( authorNode, "name", "Grupa Allegro" );
-			assertTextNodeEquals( authorNode, "email", "grupa@domain.com" );
-			assertTextNodeEquals( authorNode, "url", "https://github.com/allegro" );
-
-			assertTextNodeEquals( dev2Node, "name", "Nicholas Albion" );
-			assertTextNodeEquals( dev2Node, "email", "nalbion@domain.com" );
-			assertTextNodeEquals( dev2Node, "url", "https://github.com/nalbion" );
-
-			assertTextNodeEquals( dev3Node, "name", "Developer Three" );
-			assertTextNodeEquals( dev3Node, "email", "dev3@domain.com" );
-			assertTextNodeEquals( dev3Node, "url", "https://github.com/dev3" );
-
-			assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"),
-					"grunt", "~" + gruntVersion );
-			assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"),
-					"matchdep", "~0.3.0" );
-			assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"),
-					"grunt-maven", "~1.1.0" );
-
-			// ------ Now try a different configuration of devs/contributors ------
-			mavenProject = getProjectConfig3();
-			packageJsonFile.delete();
-			ResourceFactory.createOrUpdatePackageJson( "test", gruntVersion, mavenProject, log );
-			rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
-
-			authorNode = (ObjectNode)rootNode.get("author");
-			contributors = (ArrayNode)rootNode.get("contributors");
-			assertEquals( "should be 2 contributors", 2, contributors.size() );
-			dev2Node = (ObjectNode)contributors.get( 0 );
-			dev3Node = (ObjectNode)contributors.get( 1 );
-
-			assertTextNodeEquals( authorNode, "name", "Grupa Allegro" );
-			assertTextNodeEquals( authorNode, "email", "grupa@domain.com" );
-			assertTextNodeEquals( authorNode, "url", "https://github.com/allegro" );
-
-			assertTextNodeEquals( dev2Node, "name", "Nicholas Albion" );
-			assertTextNodeEquals( dev2Node, "email", "nalbion@domain.com" );
-			assertTextNodeEquals( dev2Node, "url", "https://github.com/nalbion" );
-
-			assertTextNodeEquals( dev3Node, "name", "Developer Three" );
-			assertTextNodeEquals( dev3Node, "email", "dev3@domain.com" );
-			assertTextNodeEquals( dev3Node, "url", "https://github.com/dev3" );
-		} catch( Exception e ) {
-			e.printStackTrace();
-			assertNull( "unexpected exception: " + e.getMessage(), e );
-		}
+		// then
+		assertThat( file ).exists();
+		assertFileContainsLine( file, "module.exports = function(grunt) {" );
 	}
 
 	@Test
-	public void testCreateOrUpdateBowerJson() {
-		SystemStreamLog log = new SystemStreamLog();
+	public void shouldCreateAValidPackageJsonFile() throws IOException, MojoExecutionException {
+		// given
+		MavenProject mavenProject = getProjectConfigBasic();
+		File packageJsonFile = new File( testDir, "package.json" );
+		packageJsonFile.delete();
 
-		try {
-			File packageJsonFile = new File( "test", "bower.json" );
-			// ------ First, create the file from scratch ------
-			packageJsonFile.delete();
+		// when
+		ResourceFactory.createOrUpdatePackageJson( testDir, gruntVersion, mavenProject, mavenLog );
 
-			MavenProject mavenProject = getProjectConfig1();
-			ResourceFactory.createOrUpdateBowerJson( "test", mavenProject, log );
-			assertTrue( "package.json was not generated", packageJsonFile.exists() );
-
-			JsonNodeFactory factory = new JsonNodeFactory(false);
-			ObjectMapper mapper = new ObjectMapper();
-			ObjectNode rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
-			assertTextNodeEquals( rootNode, "name", "empty-project" );
-			assertTextNodeEquals( rootNode, "version", "0" );
-			assertTextNodeEquals( rootNode, "description", "" );
-			assertTextNodeEquals( rootNode, "homepage", "" );
-
-			// ------ Now update the project and run again ------
-			mavenProject = getProjectConfig2();
-			ResourceFactory.createOrUpdateBowerJson( "test", mavenProject, log );
-			rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
-
-			// Does the package name really need to follow the maven artifactId?  ...probably not
-			// assertTextNodeEquals( rootNode, "name", name );
-			assertTextNodeEquals( rootNode, "version", version );
-			assertTextNodeEquals( rootNode, "description", description );
-			assertTextNodeEquals( rootNode, "homepage", url );
-
-			ArrayNode authorsNode = (ArrayNode)rootNode.get("authors");
-			ArrayNode contributors = (ArrayNode)rootNode.get("contributors");
-			assertEquals( "should be one contributors", 1, contributors.size() );
-			TextNode dev3Node = (TextNode)contributors.get( 0 );
-
-			TextNode authorNode = (TextNode)authorsNode.get( 0 );
-			assertEquals( "Grupa Allegro <grupa@domain.com>", authorNode.textValue() );
-
-			TextNode dev2Node = (TextNode)authorsNode.get( 1 );
-			assertEquals( "Nicholas Albion <nalbion@domain.com>", dev2Node.textValue() );
-			assertEquals( "Developer Three <dev3@domain.com>", dev3Node.textValue() );
-
-			// ------ Now try a different configuration of devs/contributors ------
-			mavenProject = getProjectConfig3();
-			packageJsonFile.delete();
-			ResourceFactory.createOrUpdateBowerJson( "test", mavenProject, log );
-			rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
-
-			authorsNode = (ArrayNode)rootNode.get("authors");
-			authorNode = (TextNode)authorsNode.get(0);
-			contributors = (ArrayNode)rootNode.get("contributors");
-			assertEquals( "should be 2 contributors", 2, contributors.size() );
-			dev2Node = (TextNode)contributors.get( 0 );
-			dev3Node = (TextNode)contributors.get( 1 );
-
-			assertEquals( "Grupa Allegro <grupa@domain.com>", authorNode.textValue() );
-
-			assertEquals( "Nicholas Albion <nalbion@domain.com>", dev2Node.textValue() );
-			assertEquals( "Developer Three <dev3@domain.com>", dev3Node.textValue() );
-		} catch( Exception e ) {
-			e.printStackTrace();
-			assertNull( "unexpected exception: " + e.getMessage(), e );
-		}
+		// then
+		assertThat( packageJsonFile ).exists();
+		ObjectNode rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
+		assertTextNodeEquals( rootNode, "name", "empty-project" );
+		assertTextNodeEquals( rootNode, "version", "0" );
+		assertTextNodeEquals( rootNode, "description", "" );
+		assertTextNodeEquals( rootNode, "homepage", "" );
+		assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"), "grunt", "~" + gruntVersion );
+		assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"), "matchdep", "~0.3.0" );
+		assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"), "grunt-maven", "~1.1.0" );
 	}
 
-	private MavenProject getProjectConfig1() {
+	@Test
+	public void shouldUpdateExistingPackageJsonFileFromMavenProjectModel() throws IOException, MojoExecutionException {
+		// given package.json already exists but is out of sync with project config 2
+		MavenProject mavenProject = getProjectConfigBasic();
+		ResourceFactory.createOrUpdatePackageJson( testDir, gruntVersion, mavenProject, mavenLog );
+
+		// when Maven model is updated and createOrUpdate is run again
+		mavenProject = getProjectConfigWith2Developers();
+		ResourceFactory.createOrUpdatePackageJson( testDir, gruntVersion, mavenProject, mavenLog );
+
+		// then
+		File packageJsonFile = new File( testDir, "package.json" );
+		ObjectNode rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
+		// Does the package name really need to follow the maven artifactId?  ...probably not
+		// assertTextNodeEquals( rootNode, "name", name );
+		assertTextNodeEquals( rootNode, "version", version );
+		assertTextNodeEquals( rootNode, "description", description );
+		assertTextNodeEquals( rootNode, "homepage", url );
+	}
+
+	@Test
+	public void shouldFormatContributorDetailsInPackageJsonFile() throws IOException, MojoExecutionException {
+		// given
+		MavenProject mavenProject = getProjectConfigWithMissingContributorDetails();
+		File packageJsonFile = new File( testDir, "package.json" );
+
+		// when
+		ResourceFactory.createOrUpdatePackageJson( testDir, gruntVersion, mavenProject, mavenLog );
+
+		// then
+		ObjectNode rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
+		ArrayNode contributors = (ArrayNode)rootNode.get("contributors");
+		assertNodeContributorEquals( (ObjectNode)rootNode.get("author"), devNameless );
+		assertNodeContributorEquals( (ObjectNode)contributors.get( 0 ), devHomeless );
+		assertNodeContributorEquals( (ObjectNode)contributors.get( 1 ), devNoEmail );
+	}
+
+	@Test
+	public void shouldListContributorsAsArrayInPackageJsonFile() throws IOException, MojoExecutionException {
+		// given a different configuration of devs/contributors
+		MavenProject mavenProject = getProjectConfigWith2Contributors();
+		File packageJsonFile = new File( testDir, "package.json" );
+
+		// when
+		ResourceFactory.createOrUpdatePackageJson( testDir, gruntVersion, mavenProject, mavenLog );
+
+		// then
+		ObjectNode rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
+		ArrayNode contributors = (ArrayNode)rootNode.get("contributors");
+		assertEquals( contributors.size(), 2, "should be 2 contributors" );
+		assertNodeContributorEquals( (ObjectNode)rootNode.get("author"), dev );
+		assertNodeContributorEquals( (ObjectNode)contributors.get( 0 ), dev2 );
+		assertNodeContributorEquals( (ObjectNode)contributors.get( 1 ), dev3 );
+	}
+
+	@Test
+	public void shouldListSecondaryDevelopersInPackageJsonFileContributorsArray() throws IOException, MojoExecutionException {
+		// given
+		MavenProject mavenProject = getProjectConfigWith2Developers();
+
+		// when
+		ResourceFactory.createOrUpdatePackageJson( testDir, gruntVersion, mavenProject, mavenLog );
+
+		// then
+		File packageJsonFile = new File( testDir, "package.json" );
+		ObjectNode rootNode = (ObjectNode)mapper.readValue( packageJsonFile, JsonNode.class );
+		ArrayNode contributors = (ArrayNode)rootNode.get("contributors");
+		assertEquals( contributors.size(), 2, "should be two contributors" );
+		assertNodeContributorEquals( (ObjectNode)rootNode.get("author"), dev );
+		assertNodeContributorEquals( (ObjectNode)contributors.get( 0 ), dev2 );
+		assertNodeContributorEquals( (ObjectNode)contributors.get( 1 ), dev3 );
+
+		assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"), "grunt", "~" + gruntVersion );
+		assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"), "matchdep", "~0.3.0" );
+		assertTextNodeEquals( (ObjectNode)rootNode.get("devDependencies"), "grunt-maven", "~1.1.0" );
+	}
+
+	@Test
+	public void shouldCreateAValidBowerJsonFile() throws IOException, MojoExecutionException {
+		// given
+		MavenProject mavenProject = getProjectConfigBasic();
+		File bowerJsonFile = new File( testDir, "bower.json" );
+		bowerJsonFile.delete();
+
+		// when
+		ResourceFactory.createOrUpdateBowerJson( testDir, mavenProject, mavenLog );
+
+		// then
+		assertThat( bowerJsonFile ).exists();
+		ObjectNode rootNode = (ObjectNode)mapper.readValue( bowerJsonFile, JsonNode.class );
+		assertTextNodeEquals( rootNode, "name", "empty-project" );
+		assertTextNodeEquals( rootNode, "version", "0" );
+		assertTextNodeEquals( rootNode, "description", "" );
+		assertTextNodeEquals( rootNode, "homepage", "" );
+	}
+
+	@Test
+	public void shouldFormatContributorDetailsInBowerJsonFile() throws IOException, MojoExecutionException {
+		// given
+		MavenProject mavenProject = getProjectConfigWithMissingContributorDetails();
+
+		// when
+		ResourceFactory.createOrUpdateBowerJson( testDir, mavenProject, mavenLog );
+
+		// then
+		File bowerJsonFile = new File( testDir, "bower.json" );
+		ObjectNode rootNode = (ObjectNode)mapper.readValue( bowerJsonFile, JsonNode.class );
+		ArrayNode authorsNode = (ArrayNode)rootNode.get("authors");
+		ArrayNode contributors = (ArrayNode)rootNode.get("contributors");
+		assertEquals( contributors.size(), 2, "should be 2 contributors" );
+		assertBowerContributorEquals( (TextNode)authorsNode.get(0), devNameless );
+		assertBowerContributorEquals( (TextNode)contributors.get(0), devHomeless );
+		assertBowerContributorEquals( (TextNode)contributors.get(1), devNoEmail );
+	}
+
+	@Test
+	public void shouldListContributorsAsArrayInBowerJsonFile() throws IOException, MojoExecutionException {
+		// given
+		MavenProject mavenProject = getProjectConfigWith2Contributors();
+
+		// when
+		ResourceFactory.createOrUpdateBowerJson( testDir, mavenProject, mavenLog );
+
+		// then
+		File bowerJsonFile = new File( testDir, "bower.json" );
+		ObjectNode rootNode = (ObjectNode)mapper.readValue( bowerJsonFile, JsonNode.class );
+		ArrayNode authorsNode = (ArrayNode)rootNode.get("authors");
+		ArrayNode contributors = (ArrayNode)rootNode.get("contributors");
+		assertEquals( contributors.size(), 2, "should be 2 contributors" );
+		assertBowerContributorEquals( (TextNode)authorsNode.get(0), dev );
+		assertBowerContributorEquals( (TextNode)contributors.get(0), dev2 );
+		assertBowerContributorEquals( (TextNode)contributors.get(1), dev3 );
+	}
+
+	@Test
+	public void shouldListSecondaryDevelopersInBowerJsonFileDevelopersArray() throws IOException, MojoExecutionException {
+		// given
+		MavenProject mavenProject = getProjectConfigWith2Developers();
+
+		// when
+		ResourceFactory.createOrUpdateBowerJson( testDir, mavenProject, mavenLog );
+
+		// then
+		File bowerJsonFile = new File( testDir, "bower.json" );
+		assertThat( bowerJsonFile ).exists();
+		ResourceFactory.createOrUpdateBowerJson( testDir, mavenProject, mavenLog );
+		ObjectNode rootNode = (ObjectNode)mapper.readValue( bowerJsonFile, JsonNode.class );
+
+		// Does the package name really need to follow the maven artifactId?  ...probably not
+		// assertTextNodeEquals( rootNode, "name", name );
+		assertTextNodeEquals( rootNode, "version", version );
+		assertTextNodeEquals( rootNode, "description", description );
+		assertTextNodeEquals( rootNode, "homepage", url );
+
+		ArrayNode authorsNode = (ArrayNode)rootNode.get("authors");
+		ArrayNode contributors = (ArrayNode)rootNode.get("contributors");
+		assertEquals( contributors.size(), 1, "should be one contributors" );
+		assertBowerContributorEquals( (TextNode)authorsNode.get( 0 ), dev );
+		assertBowerContributorEquals( (TextNode)authorsNode.get( 1 ), dev2 );
+		assertBowerContributorEquals( (TextNode)contributors.get( 0 ), dev3 );
+	}
+
+	private MavenProject getProjectConfigBasic() {
 		return new MavenProject();
 	}
 
-	private MavenProject getProjectConfig2() {
+	private MavenProject getProjectConfigWith2Developers() {
 		MavenProject mavenProject = new MavenProject();
 
 		mavenProject.setName( name );
@@ -267,8 +305,22 @@ public class ResourceFactoryTest {
 		return mavenProject;
 	}
 
-	private MavenProject getProjectConfig3() {
-		MavenProject mavenProject = getProjectConfig2();
+	private MavenProject getProjectConfigWithMissingContributorDetails() {
+		MavenProject mavenProject = new MavenProject();
+
+		mavenProject.setName( name );
+		mavenProject.setVersion( version );
+		mavenProject.setDescription( description );
+		mavenProject.setUrl( url );
+		mavenProject.addDeveloper( (Developer)devNameless );
+		mavenProject.addDeveloper( (Developer)devHomeless );
+		mavenProject.addDeveloper( (Developer)devNoEmail );
+
+		return mavenProject;
+	}
+
+	private MavenProject getProjectConfigWith2Contributors() {
+		MavenProject mavenProject = getProjectConfigWith2Developers();
 
 		mavenProject.setDevelopers( Arrays.asList(dev) );
 		mavenProject.setContributors( Arrays.asList(dev2, dev3) );
@@ -277,8 +329,49 @@ public class ResourceFactoryTest {
 	}
 
 	private void assertTextNodeEquals( ObjectNode rootNode, String fieldName, String expectedValue ) {
-		assertEquals( "incorrect value for " + fieldName,
-						expectedValue,
-					((TextNode)rootNode.get(fieldName)).textValue() );
+		TextNode node = (TextNode)rootNode.get(fieldName);
+		if( expectedValue == null ) {
+			assertNull( node, fieldName + " should be null" );
+		} else {
+			assertEquals( node.textValue(), expectedValue, "incorrect value for " + fieldName );
+		}
+	}
+
+	private void assertNodeContributorEquals( ObjectNode node, Contributor contributor ) {
+		assertTextNodeEquals( node, "name", contributor.getName() );
+		assertTextNodeEquals( node, "email", contributor.getEmail() );
+		assertTextNodeEquals( node, "url", contributor.getUrl() );
+	}
+
+	private void assertBowerContributorEquals( TextNode node, Contributor contributor ) {
+		if( contributor.getName() != null ) {
+			if( contributor.getEmail() != null ) {
+				assertEquals( node.textValue(), contributor.getName() + " <" + contributor.getEmail() + ">" );
+			} else {
+				assertEquals( node.textValue(), contributor.getName() );
+			}
+		} else {
+			assertEquals( node.textValue(), contributor.getEmail() );
+		}
+	}
+
+	private void assertFileContainsLine( File file, String expectedLine ) throws IOException {
+		BufferedReader in = null;
+		try {
+			boolean foundModuleExports = false;
+			in = new BufferedReader( new FileReader( file ) );
+			String line;
+			while( (line = in.readLine()) != null ) {
+				if( expectedLine.equals( line ) ) {
+					foundModuleExports = true;
+					break;
+				}
+			}
+			assertTrue( foundModuleExports, "Didn't find '" + expectedLine + "'" );
+		} finally {
+			if( in != null ) {
+				in.close();
+			}
+		}
 	}
 }
