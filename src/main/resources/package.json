@@ -1,0 +1,9 @@
+{
+	"name": "${project.artifactId}",
+	"version": "${project.version}",
+	"description": "${project.description}",
+	"homepage": "${project.url}",
+	"devDependencies": {
+		"grunt": "~${grunt.version}"
+	}
+}
