@@ -22,8 +22,8 @@ import java.util.List;
 /**
  * Synchronises <code>package.json</code> with <code>pom.xml</code>
  */
-@Mojo(name = "sync-with-pom", defaultPhase = LifecyclePhase.VALIDATE)
-public class SyncGruntMojo extends BaseMavenGruntMojo {
+@Mojo(name = "update-package-json", defaultPhase = LifecyclePhase.VALIDATE)
+public class UpdatePackageJsonMojo extends BaseMavenGruntMojo {
 
 	private static final String PACKAGE_JSON_RESOURCE_NAME = "package.json";
 	private static final String GRUNT_FILE_RESOURCE_NAME = "Gruntfile.js";
