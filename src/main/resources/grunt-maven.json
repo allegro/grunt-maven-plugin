@@ -1,7 +1,9 @@
 {
+	"finalName": "${finalName}",
     "filesToWatch": "${filesToWatch}",
     "directoryToWatch": "${directoryToWatch}",
     "projectRootPath": "${projectRootPath}",
+	"gruntBuildDirectory": "${gruntBuildDirectory}",
     "targetPath": "${targetPath}",
     "sourceDirectory": "${sourceDirectory}",
     "jsSourceDirectory": "${jsSourceDirectory}",
