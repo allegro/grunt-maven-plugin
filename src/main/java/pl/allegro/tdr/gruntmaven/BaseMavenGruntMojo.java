@@ -30,6 +30,9 @@ import org.apache.maven.project.MavenProject;
  */
 public abstract class BaseMavenGruntMojo extends AbstractMojo {
 
+	@Parameter(property = "gruntVersion", defaultValue = "0.4.2")
+	protected String gruntVersion;
+
     /**
      * Path to build directory (target for grunt sources), defaults to ${basedir}/target-grunt.
      */

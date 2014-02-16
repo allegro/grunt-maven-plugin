@@ -3,3 +3,7 @@
 .classpath
 .project
 target/
+.idea/
+grunt-maven-plugin.iml
+node_modules/
+test/

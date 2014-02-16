@@ -15,56 +15,43 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 /**
- * Executes npm install to download all dependencies declared in
- * package.json.
- *
- * @author Adam Dubiel
+ * Executes bower install to download all dependencies declared in bower.json.
  */
-@Mojo(name = "npm", defaultPhase = LifecyclePhase.TEST)
-public class ExecNpmMojo extends AbstractExecutableMojo {
+@Mojo(name = "bower", defaultPhase = LifecyclePhase.TEST)
+public class ExecBowerMojo extends AbstractExecutableMojo {
 
-    private static final String NPM_INSTALL_COMMAND = "install";
+    private static final String BOWER_INSTALL_COMMAND = "install";
 
     /**
-     * Name of npm executable in PATH, defaults to npm.
+     * Name of bower executable in PATH, defaults to bower.
      */
-    @Parameter(property = "npmExecutable", defaultValue = "npm")
-    private String npmExecutable;
-
-	/**
-	 * List of options passed to grunt. (eg nmes of modules to install)
-	 */
-	@Parameter(property = "npmOptions")
-	private String[] npmOptions;
+    @Parameter(property = "bowerExecutable", defaultValue = "bower")
+    private String bowerExecutable;
 
     @Override
     protected String getExecutable() {
-        return npmExecutable;
+        return bowerExecutable;
     }
 
     @Override
     protected Element[] getArguments() {
         List<Element> arguments = new ArrayList<Element>();
 
-        arguments.add(element(name("argument"), NPM_INSTALL_COMMAND));
+        arguments.add(element(name("argument"), BOWER_INSTALL_COMMAND));
 
         if (!showColors) {
             arguments.add(element(name("argument"), "--color=false"));
         }
-
-	    if( npmOptions != null ) {
-		    for( String option : npmOptions ) {
-			    arguments.add(element(name("argument"), option));
-		    }
-	    }
 
         return arguments.toArray(new Element[arguments.size()]);
     }
