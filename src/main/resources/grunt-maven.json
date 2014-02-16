@@ -1,4 +1,5 @@
 {
+	"finalName": "${finalName}",
     "filesToWatch": "${filesToWatch}",
     "directoryToWatch": "${directoryToWatch}",
     "projectRootPath": "${projectRootPath}",
