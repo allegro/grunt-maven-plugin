@@ -24,6 +24,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import pl.allegro.tdr.gruntmaven.resources.Resource;
+import pl.allegro.tdr.gruntmaven.resources.ResourceFactory;
+
 import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 /**
@@ -76,8 +78,35 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
     @Parameter(property = "filteredResources")
     private String[] filteredResources;
 
+	/**
+	 * Set to true to have the <code>package.json</code> file updated with values from your <code>pom.xml</code>.
+	 * Updates: version, homepage, description, author, contributors, repository, license
+	 */
+	@Parameter(property = "updatePackageJson", defaultValue = "false")
+	private boolean updatePackageJson;
+
+	/**
+	 * Set to true to have the <code>bower.json</code> file updated with values from your <code>pom.xml</code>.
+	 * Updates: version, homepage, description, authors, contributors, license
+	 */
+	@Parameter(property = "updateBowerJson", defaultValue = "false")
+	private boolean updateBowerJson;
+
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+	    // If the Gruntfile.js doesn't already exist, create an example
+	    String gruntSourceDirectory = sourceDirectory + "/" + jsSourceDirectory;
+	    if( new File(gruntSourceDirectory, "Gruntfile.js").exists() == false ) {
+		    ResourceFactory.createGruntfile( gruntSourceDirectory, getLog() );
+	    }
+
+	    if( updatePackageJson ) {
+		    ResourceFactory.createOrUpdatePackageJson( gruntSourceDirectory, gruntVersion, mavenProject, getLog() );
+	    }
+	    if( updateBowerJson ) {
+		    ResourceFactory.createOrUpdateBowerJson( gruntSourceDirectory, mavenProject, getLog() );
+	    }
 
         executeMojo(plugin(
                 groupId(RESOURCES_MAVEN_GROUP),
