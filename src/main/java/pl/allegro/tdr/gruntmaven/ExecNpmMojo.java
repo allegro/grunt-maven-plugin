@@ -39,6 +39,12 @@ public class ExecNpmMojo extends AbstractExecutableMojo {
     @Parameter(property = "npmExecutable", defaultValue = "npm")
     private String npmExecutable;
 
+	/**
+	 * List of options passed to grunt. (eg nmes of modules to install)
+	 */
+	@Parameter(property = "npmOptions")
+	private String[] npmOptions;
+
     @Override
     protected String getExecutable() {
         return npmExecutable;
@@ -53,6 +59,12 @@ public class ExecNpmMojo extends AbstractExecutableMojo {
         if (!showColors) {
             arguments.add(element(name("argument"), "--color=false"));
         }
+
+	    if( npmOptions != null ) {
+		    for( String option : npmOptions ) {
+			    arguments.add(element(name("argument"), option));
+		    }
+	    }
 
         return arguments.toArray(new Element[arguments.size()]);
     }

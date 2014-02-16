@@ -17,6 +17,9 @@ package pl.allegro.tdr.gruntmaven;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -64,10 +67,10 @@ public class ExecGruntMojo extends AbstractExecutableMojo {
     private boolean runGruntWithNode;
 
     /**
-     * List of options passed to grunt.
-     */
-    @Parameter(property = "gruntOptions")
-    private String[] gruntOptions;
+	 * List of options passed to grunt.
+	 */
+	@Parameter(property = "gruntOptions")
+	private String[] gruntOptions;
 
     /**
      * Should Maven ignore grunt task errors (for example failing tests) and always finish grunt execution with success.
@@ -108,6 +111,20 @@ public class ExecGruntMojo extends AbstractExecutableMojo {
 
         return arguments.toArray(new Element[arguments.size()]);
     }
+
+	/**
+	 * @return null if the version was not able to be determined
+	 */
+	public String getVersion() {
+		String response = super.getVersion();
+		Pattern pattern = Pattern.compile( ".*grunt v?(\\d+\\.\\d+\\.\\d+)-?.*$", Pattern.DOTALL );
+		Matcher matcher = pattern.matcher( response );
+		if( matcher.matches() ) {
+			return matcher.group(1);
+		}
+		getLog().warn("Failed to determine " + getExecutable() + " version from '" + response + "'");
+		return null;
+	}
 
     private void appendOptions(List<Element> arguments) {
         for (String option : gruntOptions) {
