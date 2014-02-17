@@ -137,7 +137,7 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
     }
 
     private void createInnerPropertiesResource() {
-	    Resource.from("/" + INNER_PROPERTIES_RESOURCE_NAME, getLog())
+        Resource.from("/" + INNER_PROPERTIES_RESOURCE_NAME, getLog())
                 .withFilter("filesToWatch", pathToWatchDirectory() + File.separator + "**")
                 .withFilter("directoryToWatch", pathToWatchDirectory())
                 .withFilter("projectRootPath", basedir())
