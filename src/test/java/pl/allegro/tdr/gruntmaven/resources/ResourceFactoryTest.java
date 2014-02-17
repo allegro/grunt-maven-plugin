@@ -40,7 +40,7 @@ import java.util.Arrays;
 
 public class ResourceFactoryTest {
 	private static final SystemStreamLog mavenLog = new SystemStreamLog();
-	private static final String testDir = "test/target";
+	private static final String testDir = "target/test";
 	private static final String gruntVersion =  "0.4.2";
 
 	private JsonNodeFactory factory = new JsonNodeFactory(false);
@@ -82,9 +82,9 @@ public class ResourceFactoryTest {
 
 	@AfterClass
 	public static void cleanup() {
-//		new File(testDir, "Gruntfile.js").delete();
-//		new File(testDir, "package.json").delete();
-//		new File(testDir, "bower.json").delete();
+		new File(testDir, "Gruntfile.js").delete();
+		new File(testDir, "package.json").delete();
+		new File(testDir, "bower.json").delete();
 		new File(testDir).delete();
 	}
 
