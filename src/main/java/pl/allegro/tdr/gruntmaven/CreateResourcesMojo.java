@@ -137,16 +137,10 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
     }
 
     private void createInnerPropertiesResource() {
-	    String finalName = mavenProject.getBuild().getFinalName();
-	    if( finalName == null ) {
-		    finalName = mavenProject.getArtifactId() + '-' + mavenProject.getVersion();
-	    }
 	    Resource.from("/" + INNER_PROPERTIES_RESOURCE_NAME, getLog())
-		        .withFilter("finalName", finalName)
                 .withFilter("filesToWatch", pathToWatchDirectory() + File.separator + "**")
                 .withFilter("directoryToWatch", pathToWatchDirectory())
                 .withFilter("projectRootPath", basedir())
-			    .withFilter("gruntBuildDirectory", gruntBuildDirectory)
                 .withFilter("targetPath", target())
                 .withFilter("sourceDirectory", sourceDirectory)
                 .withFilter("jsSourceDirectory", jsSourceDirectory)
