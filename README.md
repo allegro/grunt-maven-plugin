@@ -1,11 +1,11 @@
 # grunt-maven-plugin
 
-**grunt-maven-plugin** plugin allows to integrate **Grunt** tasks into **Maven** build process. [**Grunt**](http://gruntjs.com/) is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and \*nix systems.
+**grunt-maven-plugin** plugin allows you to integrate **Grunt** tasks into the **Maven** build process. [**Grunt**](http://gruntjs.com/) is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and \*nix systems.
 
-**grunt-maven-plugin** comes with unique Maven+Grunt Integrated Workflow which removes all impediments present when trying to build project using two different build tools.
+**grunt-maven-plugin** comes with unique Maven+Grunt Integrated Workflow which removes all impediments presented when trying to build project using two different build tools.
 
 
-*Version 1.2.0 intorduces new set of tasks for Maven+Grunt Integrated Workflow. If you were using earlier versions, please consult [migration guide](https://github.com/allegro/grunt-maven-plugin/wiki/Migrating-from-1.1.x-to-1.2.x) before upgrading.*
+*Version 1.2.0 introduces new set of tasks for Maven+Grunt Integrated Workflow. If you were using earlier versions, please consult [migration guide](https://github.com/allegro/grunt-maven-plugin/wiki/Migrating-from-1.1.x-to-1.2.x) before upgrading.*
 
 
 ## Prerequisites
@@ -13,11 +13,13 @@
 The only required dependency is [**nodejs**](http://nodejs.org/) with **npm**.
 Globally installed [**grunt-cli**](http://gruntjs.com/getting-started) is optional and preferred, but not necessary, as installing custom node modules can be problematic in some environments (ex. CI servers). Additional configuration is needed when using local **grunt-cli**.
 
+**grunt-maven-plugin** can also run [**bower install**](http://bower.io/) to install front-end dependencies from Git repositories etc.
+
 grunt-maven-plugin is compatible with JDK 6+ and Maven 3+.
 
 ## Motivation
 
-**grunt-maven-plugin** came to life because I needed a good tool to integrate Maven and Grunt. By good i mean not just firing off **grunt** process, but a tool that would respect rules from both backend (Maven) and frontend (Grunt) worlds. No *node_modules* in Maven sources, no Maven *src/main/webapp/..* paths in *Gruntfile.js*.
+**grunt-maven-plugin** came to life because I needed a good tool to integrate Maven and Grunt. By good i mean not just firing off a **grunt** process, but a tool that would respect rules from both backend (Maven) and frontend (Grunt) worlds. No *node_modules* in Maven sources, no Maven *src/main/webapp/..* paths in *Gruntfile.js*.
 
 **grunt-maven-plugin** allows you to create a usual NPM/Grunt project that could be built and understood by any Node developer, and put it somewhere inside Maven project. It can be extracted at any time and nothing should break. On the other side backend developers don't need to worry about pesky *node_modules* wandering around src/ - all dependencies, generated sources and deliverables live in dedicated **target-grunt** directory, doing this part of build the Maven way.
 
@@ -51,6 +53,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
             <goals>
                 <goal>create-resources</goal>
                 <goal>npm</goal>
+                <goal>bower</goal>
                 <goal>grunt</goal>
             </goals>
         </execution>
@@ -121,9 +124,9 @@ its modules in place and executes flawlessly.
 
 1. `npm install` is called, fetching all dependencies
 
-1. `grunt` is run to complete build process
+1. `grunt` is run to complete the build process
 
-Since plugin creates own target dir, it should be added to ignored resources in SCM configuration (like .gitignore).
+Because the plugin creates its own target dir, it should be added to ignored resources in SCM configuration (like .gitignore).
 
 ## grunt-maven-plugin options
 
@@ -147,6 +150,10 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 * **npmExecutable** : name of globally available **npm** executable; defaults to *npm*
 * **nodeModulesPath** : path where preinstalled **node_modules** are stored
 
+#### bower
+
+* **bowerExecutable** : name of globally available **bower** executable; defaults to *bower*
+
 #### grunt options
 
 * **target** : name of Grunt target to run (defaults to null, default Grunt target is run)
@@ -158,8 +165,9 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 ## Execution goals
 
-* **create-resources** : copies resources from *sourceDirectory/jsSourceDirectory* to *gruntBuildDirectory*
+* **create-resources** : copies all files and *filteredResources* from *sourceDirectory/jsSourceDirectory* to *gruntBuildDirectory*
 * **npm** : executes `npm install` in target directory
+* **bower** : executes `bower install` to install Bower dependencies defined in package.json
 * **grunt** : executes Grunt in target directory
 * **clean** : deletes *gruntBuildDirectory*
 
@@ -207,7 +215,7 @@ Since we want grunt-maven-plugin to take control of what ends up in WAR, we need
 
 ### Configuring Grunt
 
-**grunt-maven-plugin** has a dedicated NPM Grunt multitasks that make integrated workflow work.
+**grunt-maven-plugin** has a dedicated NPM Grunt multitasks that makes the integrated workflow work.
 
 ```js
 grunt.initConfig({
