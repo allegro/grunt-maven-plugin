@@ -22,7 +22,8 @@ public class ResourceFactory {
 	private static final String BOWER_JSON_RESOURCE_NAME = "bower.json";
 
 
-	public static void createGruntfile( String targetFileName, Log log ) {
+	public static void createGruntfile( String sourceDirectory, Log log ) {
+		String targetFileName = sourceDirectory + "/" + GRUNT_FILE_RESOURCE_NAME;
 		Resource.from( "/" + GRUNT_FILE_RESOURCE_NAME, log )
 				.copy( targetFileName );
 		log.info( "Created grunt file: " + targetFileName );
