@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 Adam Dubiel, Przemek Hertel.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package pl.allegro.tdr.gruntmaven.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,14 +25,9 @@ import org.apache.maven.model.Contributor;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
-import org.junit.AfterClass;
-import org.junit.Test;
-
-import javax.xml.soap.Text;
-
-import static org.junit.Assert.*;
-
-import static org.junit.Assert.*;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,11 +67,11 @@ public class ResourceFactoryTest {
 
 
 	@Test
-	public void testCreateGruntfile() {
+	public void shouldCreateAValidGruntfile() {
 		String fileName = "test/Gruntfile.js";
 		ResourceFactory.createGruntfile( fileName, new SystemStreamLog() );
 		File file = new File( fileName );
-		assertTrue( fileName + " doesn't even exist", file.exists() );
+		assertTrue( file.exists(), fileName + " doesn't even exist" );
 		try {
 			boolean foundModuleExports = false;
 			BufferedReader in = new BufferedReader( new FileReader( file ) );
@@ -72,10 +82,10 @@ public class ResourceFactoryTest {
 					break;
 				}
 			}
-			assertTrue( "Didn't find 'module.exports = function(grunt) {'", foundModuleExports );
+			assertTrue( foundModuleExports, "Didn't find 'module.exports = function(grunt) {'" );
 		} catch( Exception e ) {
-			assertNull( "unexpected exception: " + e.getMessage(), e );
 			e.printStackTrace();
+			assertNull( e, "unexpected exception: " + e.getMessage() );
 		}
 	}
 
