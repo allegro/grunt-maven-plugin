@@ -3,5 +3,3 @@
 .classpath
 .project
 target/
-.idea/
-grunt-maven-plugin.iml

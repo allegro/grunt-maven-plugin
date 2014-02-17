@@ -5,15 +5,13 @@ module.exports = function(grunt) {
 	// Do grunt-related things in here
 	grunt.initConfig({
 		// The grunt-maven-plugin provides the following Maven properties in grunt-maven.json:
-		// 	 .finalName: 			${finalName},
-		//   .filesToWatch: 		${sourceDirectory}/${jsSourceDirectory} default: src/main/webapp/ static /**
-		//   .directoryToWatch: 	${sourceDirectory}/${jsSourceDirectory} default: src/main/webapp/ static
-		//   .projectRootPath: 		${baseDir},								/
-		//   .gruntBuildDirectory: 	${gruntBuildDirectory}",				/target-grunt
-		//   .targetPath: 			${project.build.directory}",			/target
-		//   .sourceDirectory: 		${sourceDirectory}",					default: src/main/webapp/
-		//   .jsSourceDirectory: 	${jsSourceDirectory}",					/static
-		//   .filteredFiles": 		${filteredResources} as an array
+		//   .filesToWatch: 	${sourceDirectory}/${jsSourceDirectory} (absolute)default: src/main/webapp/ static /**
+		//   .directoryToWatch: ${sourceDirectory}/${jsSourceDirectory} (absolute)default: src/main/webapp/ static
+		//   .projectRootPath: 	${baseDir},								(absolute)/
+		//   .targetPath: 		${project.build.directory}",			(absolute)/target
+		//   .sourceDirectory: 	${sourceDirectory}",					(don't use - relative) default: src/main/webapp/
+		//   .jsSourceDirectory: ${jsSourceDirectory}",					/static
+		//   .filteredFiles": ${filteredResources} as an array
 		gruntMavenProperties: grunt.file.readJSON('grunt-maven.json'),
 
 		// https://github.com/allegro/grunt-maven-npm
