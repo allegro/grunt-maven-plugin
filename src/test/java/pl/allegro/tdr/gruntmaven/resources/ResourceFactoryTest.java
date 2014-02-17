@@ -234,10 +234,9 @@ public class ResourceFactoryTest {
 		ObjectNode rootNode = (ObjectNode)mapper.readValue( bowerJsonFile, JsonNode.class );
 		ArrayNode authorsNode = (ArrayNode)rootNode.get("authors");
 		ArrayNode contributors = (ArrayNode)rootNode.get("contributors");
-		assertEquals( contributors.size(), 2, "should be 2 contributors" );
 		assertBowerContributorEquals( (TextNode)authorsNode.get(0), devNameless );
-		assertBowerContributorEquals( (TextNode)contributors.get(0), devHomeless );
-		assertBowerContributorEquals( (TextNode)contributors.get(1), devNoEmail );
+		assertBowerContributorEquals( (TextNode)authorsNode.get(1), devHomeless );
+		assertBowerContributorEquals( (TextNode)authorsNode.get(2), devNoEmail );
 	}
 
 	@Test
