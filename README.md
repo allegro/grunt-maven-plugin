@@ -154,7 +154,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 * **bowerExecutable** : name of globally available **bower** executable; defaults to *bower*
 
-#### grunt options
+#### grunt
 
 * **target** : name of Grunt target to run (defaults to null, default Grunt target is run)
 * **gruntOptions** : list of custom options passed to grunt (defaults to empty)
@@ -167,7 +167,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 * **create-resources** : copies all files and *filteredResources* from *sourceDirectory/jsSourceDirectory* to *gruntBuildDirectory*
 * **npm** : executes `npm install` in target directory
-* **bower** : executes `bower install` to install Bower dependencies defined in package.json
+* **bower** : executes `bower install` in target directory
 * **grunt** : executes Grunt in target directory
 * **clean** : deletes *gruntBuildDirectory*
 
