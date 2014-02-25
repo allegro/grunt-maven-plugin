@@ -2,7 +2,7 @@
 
 **grunt-maven-plugin** plugin allows you to integrate **Grunt** tasks into the **Maven** build process. [**Grunt**](http://gruntjs.com/) is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and \*nix systems.
 
-**grunt-maven-plugin** comes with unique Maven+Grunt Integrated Workflow which removes all impediments presented when trying to build project using two different build tools.
+**grunt-maven-plugin** comes with unique Maven+Grunt Integrated Workflow which removes all impediments present when trying to build project using two different build tools.
 
 
 *Version 1.2.0 introduces new set of tasks for Maven+Grunt Integrated Workflow. If you were using earlier versions, please consult [migration guide](https://github.com/allegro/grunt-maven-plugin/wiki/Migrating-from-1.1.x-to-1.2.x) before upgrading.*
@@ -13,7 +13,7 @@
 The only required dependency is [**nodejs**](http://nodejs.org/) with **npm**.
 Globally installed [**grunt-cli**](http://gruntjs.com/getting-started) is optional and preferred, but not necessary, as installing custom node modules can be problematic in some environments (ex. CI servers). Additional configuration is needed when using local **grunt-cli**.
 
-**grunt-maven-plugin** can also run [**bower install**](http://bower.io/) to install front-end dependencies from Git repositories etc.
+**grunt-maven-plugin** can also run `bower install` from [**bower**](http://bower.io/) to install front-end dependencies.
 
 grunt-maven-plugin is compatible with JDK 6+ and Maven 3+.
 
@@ -32,7 +32,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -215,7 +215,7 @@ Since we want grunt-maven-plugin to take control of what ends up in WAR, we need
 
 ### Configuring Grunt
 
-**grunt-maven-plugin** has a dedicated NPM Grunt multitasks that makes the integrated workflow work.
+**grunt-maven-plugin** has a dedicated NPM Grunt multitasks that make integrated workflow work.
 
 ```js
 grunt.initConfig({
@@ -285,6 +285,8 @@ but most probably it is enough to override **targetPath** property.
 
 ## Changelog
 
+* **1.2.1** (25.02.2014)
+  * executing `bower install`
 * **1.2.0** (07.02.2014)
   * new Maven+Grunt NPM multitasks
 * **1.1.4** (05.02.2014)
