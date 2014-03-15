@@ -110,6 +110,11 @@ Under the hood it uses [maven-junction-plugin](http://pyx4j.com/snapshot/pyx4j/p
 to create a link between provided path and *gruntBuildDirectory*. Grunt thinks it has
 its modules in place and executes flawlessly.
 
+### Working example
+
+[Sandbox](https://github.com/kielo/grunt-maven-plugin-sandbox) project contains simple usage example. It is used to PoC/develop/test new features, so it always stays up to date with SNAPSHOT version.  
+
+
 ## How it works?
 
 1. JavaScript project sources from
