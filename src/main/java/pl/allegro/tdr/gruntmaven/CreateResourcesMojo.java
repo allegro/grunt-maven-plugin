@@ -165,7 +165,7 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
     }
 
     private String pathToWatchDirectory() {
-        return basedir() + File.separator + sourceDirectory + jsSourceDirectory;
+        return fullJsSourceDirectory();
     }
 
     private String pathToWorkflowTasksDirectory() {

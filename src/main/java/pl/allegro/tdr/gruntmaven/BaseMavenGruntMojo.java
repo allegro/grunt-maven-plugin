@@ -15,6 +15,7 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
+import java.io.File;
 import java.io.IOException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -60,7 +61,6 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
 
     protected String basedir() {
         try {
-
             return mavenProject.getBasedir().getCanonicalPath();
         } catch (IOException exception) {
             throw new IllegalStateException("Could not extract basedir of project.", exception);
@@ -69,5 +69,13 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
 
     protected String target() {
         return mavenProject.getBuild().getDirectory();
+    }
+
+    protected String fullJsSourceDirectory() {
+        return basedir() + File.separator + sourceDirectory + File.separator + jsSourceDirectory;
+    }
+
+    protected String relativeJsSourceDirectory() {
+        return sourceDirectory + File.separator + jsSourceDirectory;
     }
 }
