@@ -15,9 +15,9 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
+import pl.allegro.tdr.gruntmaven.executable.Executable;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -25,7 +25,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 /**
  * Abstract mojo which uses MojoExecutor to execute exec-maven-plugin,
- * which in turn executes system command - commandline only.
+ * which in turn executes system command - command line only.
  *
  * Compatible with Windows via
  * <pre>cmd /C</pre>.
@@ -33,13 +33,6 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
  * @author Adam Dubiel
  */
 public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
-
-    /**
-     * Pattern for detecting options with whitespace characters. Anything after
-     * first whitespace is ignored by exec-maven-plugin, so they need to be transformed, ex:
-     * --option true == --option=true
-     */
-    private static final Pattern WHITESPACED_OPTION_PATTERN = Pattern.compile("^-{1,2}?[\\w-]*\\s+");
 
     /**
      * Windows OS name.
@@ -85,9 +78,15 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Element[] configuration = buildConfigForOS();
-        Element customSuccessCodes = overwriteSuccessCodes();
-        if (customSuccessCodes != null) {
+        for (Executable executable : getExecutables()) {
+            runExecutable(executable);
+        }
+    }
+
+    private void runExecutable(Executable executable) throws MojoExecutionException, MojoFailureException {
+        Element[] configuration = buildConfigForOS(executable);
+        if (executable.overrideSuccessCodes()) {
+            Element customSuccessCodes = overwriteSuccessCodes(executable);
             configuration = concat(configuration, customSuccessCodes);
         }
 
@@ -106,15 +105,15 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
      *
      * @return <pre>configuration</pre> element
      */
-    private Element[] buildConfigForOS() {
+    private Element[] buildConfigForOS(Executable executable) {
         Element[] configuration;
 
         getLog().info("OS Name: " + osName);
 
         if (osName.toUpperCase().contains(WINDOWS_OS_FAMILY.toUpperCase())) {
-            configuration = buildConfigForWindows();
+            configuration = buildConfigForWindows(executable);
         } else {
-            configuration = buildConfigForProperOS();
+            configuration = buildConfigForProperOS(executable);
         }
 
         configuration = concat(configuration, new Element[]{element(name("workingDirectory"), gruntBuildDirectory)});
@@ -127,10 +126,10 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
      *
      * @return configuration
      */
-    private Element[] buildConfigForProperOS() {
+    private Element[] buildConfigForProperOS(Executable executable) {
         Element[] osConfiguration = new Element[]{
-            element(name("executable"), getExecutable()),
-            element(name("arguments"), getArguments())
+            element(name("executable"), executable.executableName()),
+            element(name("arguments"), executable.argumentsArray())
         };
 
         return osConfiguration;
@@ -142,12 +141,12 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
      *
      * @return configuration
      */
-    private Element[] buildConfigForWindows() {
+    private Element[] buildConfigForWindows(Executable executable) {
         Element[] arguments = new Element[]{
             element(name("argument"), "/C"),
-            element(name("argument"), getExecutable())
+            element(name("argument"), executable.executableName())
         };
-        arguments = concat(arguments, getArguments());
+        arguments = concat(arguments, executable.argumentsArray());
 
         Element[] osConfiguration = new Element[]{
             element(name("executable"), "cmd"),
@@ -178,48 +177,13 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
      *
      * @return executable name
      */
-    protected abstract String getExecutable();
+    protected abstract List<Executable> getExecutables();
 
-    /**
-     * Return custom executable arguments.
-     *
-     * @return arguments
-     */
-    protected abstract Element[] getArguments();
-
-    private Element overwriteSuccessCodes() {
-        String[] customCodes = customSuccessCodes();
-        if (customCodes == null) {
-            return null;
-        }
-
-        Element[] successCodesElements = new Element[customCodes.length];
-        for (int index = 0; index < customCodes.length; ++index) {
-            successCodesElements[index] = element(EXEC_SUCCESS_CODE_ELEMENT, customCodes[index]);
+    private Element overwriteSuccessCodes(Executable executable) {
+        Element[] successCodesElements = new Element[executable.successCodes().length];
+        for (int index = 0; index < executable.successCodes().length; ++index) {
+            successCodesElements[index] = element(EXEC_SUCCESS_CODE_ELEMENT, executable.successCodes()[index]);
         }
         return element(EXEC_SUCCESS_CODES_ELEMENT, successCodesElements);
-    }
-
-    /**
-     * Return custom
-     * <pre>successCodes</pre> section of maven-exec-plugin.
-     * Return null if default (0) is fine.
-     */
-    protected String[] customSuccessCodes() {
-        return null;
-    }
-
-    /**
-     * Normalization checks if argument contains whitespace character between
-     * argument name and it's value, if so it replaces the whitespace with provided
-     * replacement. Normalization is needed, because mojo-exec discards all
-     * characters after first whitespace.
-     */
-    protected String normalizeArgument(String argument, String whitespaceReplacement) {
-        Matcher matcher = WHITESPACED_OPTION_PATTERN.matcher(argument);
-        if (matcher.find()) {
-            return argument.replaceFirst("\\s+", "=");
-        }
-        return argument;
     }
 }

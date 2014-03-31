@@ -15,14 +15,13 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
+import pl.allegro.tdr.gruntmaven.executable.Executable;
 
 /**
  * Executes bower install to download all dependencies declared in bower.json.
@@ -39,20 +38,14 @@ public class ExecBowerMojo extends AbstractExecutableMojo {
     private String bowerExecutable;
 
     @Override
-    protected String getExecutable() {
-        return bowerExecutable;
-    }
+    protected List<Executable> getExecutables() {
+        Executable executable = new Executable(bowerExecutable);
 
-    @Override
-    protected Element[] getArguments() {
-        List<Element> arguments = new ArrayList<Element>();
-
-        arguments.add(element(name("argument"), BOWER_INSTALL_COMMAND));
-
+        executable.addArgument(BOWER_INSTALL_COMMAND);
         if (!showColors) {
-            arguments.add(element(name("argument"), "--color=false"));
+            executable.addArgument("--color=false");
         }
 
-        return arguments.toArray(new Element[arguments.size()]);
+        return Arrays.asList(executable);
     }
 }

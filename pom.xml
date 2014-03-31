@@ -58,6 +58,12 @@
             <version>3.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.8</version>
+        </dependency>
+
         <!-- mojos -->
         <dependency>
             <groupId>org.twdata.maven</groupId>

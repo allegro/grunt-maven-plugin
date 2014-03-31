@@ -15,12 +15,12 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
-import java.util.ArrayList;
+import pl.allegro.tdr.gruntmaven.executable.Executable;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 /**
  * Executes npm install to download all dependencies declared in
@@ -40,20 +40,14 @@ public class ExecNpmMojo extends AbstractExecutableMojo {
     private String npmExecutable;
 
     @Override
-    protected String getExecutable() {
-        return npmExecutable;
-    }
+    protected List<Executable> getExecutables() {
+        Executable executable = new Executable(npmExecutable);
 
-    @Override
-    protected Element[] getArguments() {
-        List<Element> arguments = new ArrayList<Element>();
-
-        arguments.add(element(name("argument"), NPM_INSTALL_COMMAND));
-
-        if (!showColors) {
-            arguments.add(element(name("argument"), "--color=false"));
+        executable.addArgument(NPM_INSTALL_COMMAND);
+        if(!showColors) {
+            executable.addArgument("--color=false");
         }
 
-        return arguments.toArray(new Element[arguments.size()]);
+        return Arrays.asList(executable);
     }
 }

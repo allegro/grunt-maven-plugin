@@ -15,12 +15,12 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
+import pl.allegro.tdr.gruntmaven.executable.Executable;
 
 /**
  * Executes grunt.
@@ -82,41 +82,37 @@ public class ExecGruntMojo extends AbstractExecutableMojo {
     private boolean ignoreAllErrors;
 
     @Override
-    protected String getExecutable() {
+    protected List<Executable> getExecutables() {
+        Executable executable;
         if (runGruntWithNode) {
-            return nodeExecutable;
+            executable = new Executable(nodeExecutable, customSuccessCodes());
+        } else {
+            executable = new Executable(gruntExecutable, customSuccessCodes());
         }
-        return gruntExecutable;
+
+        appendArguments(executable);
+
+        return Arrays.asList(executable);
     }
 
-    @Override
-    protected Element[] getArguments() {
-        List<Element> arguments = new ArrayList<Element>();
-
+    private void appendArguments(Executable executable) {
         if (runGruntWithNode) {
-            arguments.add(element(name("argument"), gruntExecutable));
+            executable.addArgument(gruntExecutable);
         }
         if (target != null && !target.isEmpty()) {
-            arguments.add(element(name("argument"), target));
+            executable.addArgument(target);
         }
         if (!showColors) {
-            arguments.add(element(name("argument"), "--no-color"));
+            executable.addArgument("--no-color");
         }
         if (gruntOptions != null) {
-            appendOptions(arguments);
-        }
-
-        return arguments.toArray(new Element[arguments.size()]);
-    }
-
-    private void appendOptions(List<Element> arguments) {
-        for (String option : gruntOptions) {
-            arguments.add(element(name("argument"), normalizeArgument(option, "=")));
+            for (String option : gruntOptions) {
+                executable.addNormalizedArgument(option, "=");
+            }
         }
     }
 
-    @Override
-    protected String[] customSuccessCodes() {
+    private String[] customSuccessCodes() {
         if (ignoreAllErrors) {
             return IGNORE_ALL_GRUNT_ERRORS_CUSTOM_CODES;
         } else if (ignoreTasksErrors) {
