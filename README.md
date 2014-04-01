@@ -113,7 +113,7 @@ In `target-grunt`:
 rm -rf node_modules/
 npm install --ignore-scripts
 tar cf node_modules.tar node_modules/
-mv node_modules.tar <project_root>/serc/main/webapp/static/
+mv node_modules.tar ../src/main/webapp/static/
 ```
 
 ### Using linked node_modules
