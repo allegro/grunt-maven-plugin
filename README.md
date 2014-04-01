@@ -94,6 +94,7 @@ NPM downtimes can be painful for (some) development and (all) release builds. **
 * run `npm-install --ignore-scripts` in case there are any dependencies to download that were not tar-ed
 * run `npm rebuild`
 
+If *node_modules* dir already exists in *target-grunt*, it is not overriden.
 Offline flow is based on [this blogpost](http://www.letscodejavascript.com/v3/blog/2014/03/the_npm_debacle).
 
 #### Why only tar, not gz?
