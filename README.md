@@ -32,7 +32,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2-SNAPSHOT</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -53,6 +53,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
             <goals>
                 <goal>create-resources</goal>
                 <goal>npm</goal>
+                <!-- or npm-offline if npm failure is not an option -->
                 <goal>bower</goal>
                 <goal>grunt</goal>
             </goals>
@@ -82,12 +83,47 @@ options to plugin configuration and add **grunt-cli** to JS project **package.js
 }
 ```
 
-### Usage with preinstalled node_modules
+### Using NPM in offline mode
+
+NPM downtimes can be painful for (some) development and (all) release builds. **grunt-maven-plugin** contains
+**npm-offline** goal that uses tar-ed *node_modules* instead of running `npm install` during each build.
+
+**npm-offline** flow:
+
+* extract `node_modules.tar` in `target-grunt`
+* run `npm-install --ignore-scripts` in case there are any dependencies to download that were not tar-ed
+* run `npm rebuild`
+
+Offline flow is based on [this blogpost](http://www.letscodejavascript.com/v3/blog/2014/03/the_npm_debacle).
+
+#### Why only tar, not gz?
+
+* GIT uses compression internally anyway
+* TAR is lightweight and easy to extract
+* TAR is easier to diff
+
+If there are some compelling arguments for compressing this archive, please post an issue and we might add support in future
+releases.
+
+#### Preparing node_modules.tar
+
+In `target-grunt`:
+
+```
+rm -rf node_modules/
+npm install --ignore-scripts
+tar cf node_modules.tar node_modules/
+mv node_modules.tar <project_root>/serc/main/webapp/static/
+```
+
+### Using linked node_modules
+
+This option is for compatibility reasons, see **npm-offline** goal for new offline capabilities.
 
 When you want to use tool like [frontend-maven-plugin](https://github.com/eirslett/frontend-maven-plugin)
 to install node and npm locally or when you have commited-in **node_modules** directory
-(not really recommended, see [npm shronkwrap](https://npmjs.org/doc/shrinkwrap.html) to
-freeze module versions), you can make **grunt-maven-plugin** use preinstalled
+(or see [npm shrinkwrap](https://npmjs.org/doc/shrinkwrap.html) to freeze module versions),
+you can make **grunt-maven-plugin** use preinstalled
 node_modules. Just replace **npm** goal with **link-node-modules** and add **nodeModulesPath**
 to configuration options. Example:
 
@@ -112,7 +148,7 @@ its modules in place and executes flawlessly.
 
 ### Working example
 
-[Sandbox](https://github.com/kielo/grunt-maven-plugin-sandbox) project contains simple usage example. It is used to PoC/develop/test new features, so it always stays up to date with SNAPSHOT version.  
+[Sandbox](https://github.com/kielo/grunt-maven-plugin-sandbox) project contains simple usage example. It is used to PoC/develop/test new features, so it always stays up to date with SNAPSHOT version.
 
 
 ## How it works?
@@ -155,6 +191,11 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 * **npmExecutable** : name of globally available **npm** executable; defaults to *npm*
 * **nodeModulesPath** : path where preinstalled **node_modules** are stored
 
+#### offline
+
+* **npmOfflineModulesFile** : name of tar-ed **node_modules** file; defaults to *node_modules.tar*
+* **npmOfflineModulesFilePath** : path to **node_modules** file, relative to project basedir; defaults to *sourceDirectory/jsSourceDirectory*
+
 #### bower
 
 * **bowerExecutable** : name of globally available **bower** executable; defaults to *bower*
@@ -172,6 +213,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 * **create-resources** : copies all files and *filteredResources* from *sourceDirectory/jsSourceDirectory* to *gruntBuildDirectory*
 * **npm** : executes `npm install` in target directory
+* **npm-offline** : reuses packed node modules instead of fetching them from npm
 * **bower** : executes `bower install` in target directory
 * **grunt** : executes Grunt in target directory
 * **clean** : deletes *gruntBuildDirectory*
@@ -230,7 +272,7 @@ grunt.initConfig({
     },
     prepare: {}
   },
-  
+
   mavenDist: {
     options: {
       warName: 'war',
@@ -239,7 +281,7 @@ grunt.initConfig({
     },
     dist: {}
   },
-  
+
   gruntMavenProperties: grunt.file.readJSON('grunt-maven.json'),
 
   watch: {
@@ -290,6 +332,8 @@ but most probably it is enough to override **targetPath** property.
 
 ## Changelog
 
+* **1.2.2** (31.03.2014)
+  * support for npm offline mode
 * **1.2.1** (25.02.2014)
   * executing `bower install`
 * **1.2.0** (07.02.2014)
