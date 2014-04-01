@@ -155,15 +155,12 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
         StringBuilder builder = new StringBuilder(FILTERED_RESOURCES_JSON_LENGTH);
         builder.append("[");
 
-
         builder.append("\"").append("**/").append(npmOfflineModulesFile).append("\"").append(", ");
         int index;
         for (index = 0; index < filteredResources.length; ++index) {
             builder.append("\"").append(filteredResources[index]).append("\"").append(", ");
         }
-        if (index > 0) {
-            builder.delete(builder.length() - 2, builder.length());
-        }
+        builder.delete(builder.length() - 2, builder.length());
 
         builder.append("]");
         return builder.toString();
