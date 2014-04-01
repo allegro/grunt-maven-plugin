@@ -50,6 +50,19 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     @Parameter(property = "jsSourceDirectory", defaultValue = "static")
     protected String jsSourceDirectory;
 
+    /**
+     * Name of packed node_modules TAR file, defaults to node_modules.tar.
+     */
+    @Parameter(property = "npmOfflineModulesFile", defaultValue = "node_modules.tar")
+    protected String npmOfflineModulesFile;
+
+    /**
+     * Path to packed node_modules TAR file directory relative to basedir,
+     * defaults to statics directory (ex webapp/static/).
+     */
+    @Parameter(property = "npmOfflineModulesFilePath", defaultValue = "")
+    protected String npmOfflineModulesFilePath;
+
     @Parameter(property = "project", readonly = true, required = true)
     protected MavenProject mavenProject;
 

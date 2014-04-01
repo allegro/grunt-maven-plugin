@@ -31,23 +31,27 @@ import org.apache.maven.plugins.annotations.Parameter;
 @Mojo(name = "npm", defaultPhase = LifecyclePhase.TEST)
 public class ExecNpmMojo extends AbstractExecutableMojo {
 
-    private static final String NPM_INSTALL_COMMAND = "install";
+    protected static final String NPM_INSTALL_COMMAND = "install";
 
     /**
      * Name of npm executable in PATH, defaults to npm.
      */
     @Parameter(property = "npmExecutable", defaultValue = "npm")
-    private String npmExecutable;
+    protected String npmExecutable;
 
     @Override
     protected List<Executable> getExecutables() {
         Executable executable = new Executable(npmExecutable);
 
         executable.addArgument(NPM_INSTALL_COMMAND);
-        if(!showColors) {
-            executable.addArgument("--color=false");
-        }
+        appendNoColorsArgument(executable);
 
         return Arrays.asList(executable);
+    }
+
+    protected void appendNoColorsArgument(Executable executable) {
+        if (!showColors) {
+            executable.addArgument("--color=false");
+        }
     }
 }

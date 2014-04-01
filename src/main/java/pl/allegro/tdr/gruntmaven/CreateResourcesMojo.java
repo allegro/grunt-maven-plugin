@@ -103,6 +103,9 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                 element(name("includes"),
                         element(name("include"), "**/*")
                 ),
+                element(name("excludes"),
+                        element(name("exclude"), "**/" + npmOfflineModulesFile)
+                ),
                 element(name("filtering"), "false")
         );
         resourceElements.add(normalResourcesElement);

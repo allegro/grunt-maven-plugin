@@ -16,13 +16,10 @@
 package pl.allegro.tdr.gruntmaven;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.archiver.tar.TarInputStream;
-import org.codehaus.plexus.util.IOUtil;
 import pl.allegro.tdr.gruntmaven.archive.TarUtil;
 import pl.allegro.tdr.gruntmaven.executable.Executable;
 
@@ -36,35 +33,23 @@ public class ExecNpmOfflineMojo extends ExecNpmMojo {
 
     private static final String NODE_MODULES_DIR_NAME = "node_modules";
 
-    /**
-     * Name of packed node_modules TAR file, defaults to node_modules.tar.
-     */
-    @Parameter(property = "npmOfflineModulesFile", defaultValue = "node_modules.tar")
-    private String npmOfflineModulesFile;
-
-    /**
-     * Path to packed node_modules TAR file directory relative to basedir,
-     * defaults to statics directory (ex webapp/static/).
-     */
-    @Parameter(property = "npmOfflineModulesFilePath", defaultValue = "")
-    private String npmOfflineModulesFilePath;
+    private static final String NPM_REBUILD_COMMAND = "rebuild";
 
     @Override
     protected List<Executable> getExecutables() {
         unpackModules();
-        return new ArrayList<Executable>();
+        return Arrays.asList(createNpmInstallExecutable(), createNpmRebuildExecutable());
     }
 
     private void unpackModules() {
         String nodeModulesPath = gruntBuildDirectory + File.separator + NODE_MODULES_DIR_NAME;
         File targetModulesPath = new File(nodeModulesPath);
-        getLog().info("checking for existence of " + nodeModulesPath);
         if (targetModulesPath.exists()) {
             getLog().info("Found existing node_modules at " + nodeModulesPath + " , not going to overwrite them.");
             return;
         }
 
-        if(npmOfflineModulesFilePath == null) {
+        if (npmOfflineModulesFilePath == null) {
             npmOfflineModulesFilePath = relativeJsSourceDirectory();
         }
 
@@ -74,4 +59,20 @@ public class ExecNpmOfflineMojo extends ExecNpmMojo {
         TarUtil.untar(offlineModules, targetPath, getLog());
     }
 
+    private Executable createNpmInstallExecutable() {
+        Executable executable = new Executable(npmExecutable);
+        executable.addArgument(NPM_INSTALL_COMMAND);
+        executable.addArgument("--ignore-scripts");
+        appendNoColorsArgument(executable);
+
+        return executable;
+    }
+
+    private Executable createNpmRebuildExecutable() {
+        Executable executable = new Executable(npmExecutable);
+        executable.addArgument(NPM_REBUILD_COMMAND);
+        appendNoColorsArgument(executable);
+
+        return executable;
+    }
 }
