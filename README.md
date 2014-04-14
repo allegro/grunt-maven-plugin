@@ -276,7 +276,7 @@ grunt.initConfig({
 
   mavenDist: {
     options: {
-      warName: 'war',
+      warName: '<%= gruntMavenProperties.warName %>',
       deliverables: ['**', '!non-deliverable.js'],
       gruntDistDir: 'dist'
     },
