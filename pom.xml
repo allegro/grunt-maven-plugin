@@ -9,7 +9,7 @@
 
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.3.0</version>
     <packaging>maven-plugin</packaging>
 
     <name>grunt-maven-plugin</name>
