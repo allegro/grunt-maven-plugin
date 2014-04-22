@@ -7,6 +7,8 @@
 
 *Version 1.2.0 introduces new set of tasks for Maven+Grunt Integrated Workflow. If you were using earlier versions, please consult [migration guide](https://github.com/allegro/grunt-maven-plugin/wiki/Migrating-from-1.1.x-to-1.2.x) before upgrading.*
 
+*Version 1.3.0 drops support for linking node modules, since users reported problems using maven-junction-plugin. Please
+use npm-offline for offline capabilities.*
 
 ## Prerequisites
 
@@ -32,7 +34,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.2.2</version>
+    <version>1.3.0</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -119,33 +121,7 @@ mv node_modules.tar ../src/main/webapp/static/
 
 ### Using linked node_modules
 
-This option is for compatibility reasons, see **npm-offline** goal for new offline capabilities.
-
-When you want to use tool like [frontend-maven-plugin](https://github.com/eirslett/frontend-maven-plugin)
-to install node and npm locally or when you have commited-in **node_modules** directory
-(or see [npm shrinkwrap](https://npmjs.org/doc/shrinkwrap.html) to freeze module versions),
-you can make **grunt-maven-plugin** use preinstalled
-node_modules. Just replace **npm** goal with **link-node-modules** and add **nodeModulesPath**
-to configuration options. Example:
-
-```xml
-    <configuration>
-        <nodeModulesPath>${basedir}/preinstalled_modules_dir/</nodeModulesPath>
-    </configuration>
-    <executions>
-        <execution>
-            <goals>
-                <goal>create-resources</goal>
-                <goal>link-node-modules</goal>
-                <goal>grunt</goal>
-            </goals>
-        </execution>
-    </executions>
-```
-
-Under the hood it uses [maven-junction-plugin](http://pyx4j.com/snapshot/pyx4j/pyx4j-maven-plugins/maven-junction-plugin/introduction.html)
-to create a link between provided path and *gruntBuildDirectory*. Grunt thinks it has
-its modules in place and executes flawlessly.
+Removed in 1.3.0 release, use **npm-offline** instead.
 
 ### Working example
 
@@ -190,7 +166,6 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 * **nodeExecutable** : name of globally available **node** executable; defaults to *node*
 * **npmExecutable** : name of globally available **npm** executable; defaults to *npm*
-* **nodeModulesPath** : path where preinstalled **node_modules** are stored
 
 #### offline
 
@@ -333,6 +308,8 @@ but most probably it is enough to override **targetPath** property.
 
 ## Changelog
 
+* **1.3.0** (22.04.2014)
+  * **dropped** support for *link-node-modules*
 * **1.2.2** (31.03.2014)
   * support for npm offline mode
 * **1.2.1** (25.02.2014)
