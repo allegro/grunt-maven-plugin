@@ -73,6 +73,6 @@ public class CleanResourcesMojo extends BaseMavenGruntMojo {
                                 element(name("fileset"),
                                         element(name("directory"), gruntBuildDirectory))),
                         element(name("excludeDefaultDirectories"), "true")),
-                executionEnvironment(mavenProject, mavenSession, pluginManager));
+                pluginExecutionEvnironment());
     }
 }

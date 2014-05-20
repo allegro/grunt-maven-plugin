@@ -89,7 +89,7 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                         element(name("outputDirectory"), gruntBuildDirectory),
                         element(name("resources"), createResourceElements())
                 ),
-                executionEnvironment(mavenProject, mavenSession, pluginManager));
+                pluginExecutionEvnironment());
 
         createWorkflowTasksDirectory();
         createInnerPropertiesResource();

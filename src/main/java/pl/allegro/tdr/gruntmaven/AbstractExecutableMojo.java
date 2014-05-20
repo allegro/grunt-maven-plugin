@@ -96,7 +96,7 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
                 version(execMavenPluginVersion)),
                 goal(EXEC_GOAL),
                 configuration(configuration),
-                executionEnvironment(mavenProject, mavenSession, pluginManager));
+                pluginExecutionEvnironment());
     }
 
     /**

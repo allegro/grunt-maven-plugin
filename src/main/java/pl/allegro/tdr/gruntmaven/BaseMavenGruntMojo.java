@@ -20,9 +20,11 @@ import java.io.IOException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
-import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugin.PluginManager;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.twdata.maven.mojoexecutor.MojoExecutor;
 
 /**
  * Common properties for all maven-grunt goals.
@@ -64,13 +66,19 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     protected String npmOfflineModulesFilePath;
 
     @Parameter(property = "project", readonly = true, required = true)
-    protected MavenProject mavenProject;
+    private MavenProject mavenProject;
 
     @Parameter(property = "session", readonly = true, required = true)
-    protected MavenSession mavenSession;
+    private MavenSession mavenSession;
 
-    @Component
-    protected BuildPluginManager pluginManager;
+    /**
+     * Maven 2.x compatibility.
+     *
+     * @component
+     * @required
+     */
+    @SuppressWarnings("deprecation")
+    private PluginManager pluginManager;
 
     protected String basedir() {
         try {
@@ -90,5 +98,16 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
 
     protected String relativeJsSourceDirectory() {
         return sourceDirectory + File.separator + jsSourceDirectory;
+    }
+
+    protected MojoExecutor.ExecutionEnvironment pluginExecutionEvnironment() {
+        MojoExecutor.ExecutionEnvironment environment;
+        try {
+            Object o = mavenSession.lookup("org.apache.maven.plugin.BuildPluginManager");
+            environment = MojoExecutor.executionEnvironment(mavenProject, mavenSession, (BuildPluginManager) o);
+        } catch (ComponentLookupException e) {
+            environment = MojoExecutor.executionEnvironment(mavenProject, mavenSession, pluginManager);
+        }
+        return environment;
     }
 }
