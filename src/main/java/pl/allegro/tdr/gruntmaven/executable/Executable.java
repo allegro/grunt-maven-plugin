@@ -78,7 +78,7 @@ public class Executable {
     private String normalizeArgument(String argument, String whitespaceReplacement) {
         Matcher matcher = WHITESPACED_OPTION_PATTERN.matcher(argument);
         if (matcher.find()) {
-            return argument.replaceFirst("\\s+", "=");
+            return argument.replaceFirst("\\s+", whitespaceReplacement);
         }
         return argument;
     }

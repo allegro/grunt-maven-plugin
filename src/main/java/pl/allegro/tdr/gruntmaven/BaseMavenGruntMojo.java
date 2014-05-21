@@ -21,6 +21,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.PluginManager;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -73,10 +74,8 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
 
     /**
      * Maven 2.x compatibility.
-     *
-     * @component
-     * @required
      */
+    @Component
     @SuppressWarnings("deprecation")
     private PluginManager pluginManager;
 
