@@ -37,6 +37,12 @@ public class ExecBowerMojo extends AbstractExecutableMojo {
     @Parameter(property = "bowerExecutable", defaultValue = "bower")
     private String bowerExecutable;
 
+    /**
+     * List of options passed to bower.
+     */
+    @Parameter(property = "bowerOptions")
+    private String[] bowerOptions;
+
     @Override
     protected List<Executable> getExecutables() {
         Executable executable = new Executable(bowerExecutable);
@@ -44,6 +50,10 @@ public class ExecBowerMojo extends AbstractExecutableMojo {
         executable.addArgument(BOWER_INSTALL_COMMAND);
         if (!showColors) {
             executable.addArgument("--color=false");
+        }
+
+        for(String opt: bowerOptions) {
+            executable.addArgument(opt);
         }
 
         return Arrays.asList(executable);
