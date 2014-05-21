@@ -53,7 +53,7 @@ public class ExecBowerMojo extends AbstractExecutableMojo {
         }
 
         for(String opt: bowerOptions) {
-            executable.addArgument(opt);
+            executable.addNormalizedArgument(opt, "=");
         }
 
         return Arrays.asList(executable);
