@@ -122,11 +122,12 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
 
         configuration = concat(configuration, new Element[]{element(name("workingDirectory"), gruntBuildDirectory)});
         if(executable.getEnvironmentVar() != null){
-          List envVars = new ArrayList();
-          for(Object key: executable.getEnvironmentVar().keySet()){
-            envVars.add(element(key.toString(), executable.getEnvironmentVar().get(key).toString()));
+          List<Element> envVars = new ArrayList<Element>();
+          for(Map.Entry<String,String> entry: executable.getEnvironmentVar().entrySet()){
+            envVars.add(element(entry.getKey(), entry.getValue()));
           }
-          configuration = concat(configuration, new Element[]{element("environmentVariables",(Element[])envVars.toArray(new Element[0]))});
+          Element[] arrayOfenvVars = envVars.toArray(new Element[envVars.size()]);
+          configuration = concat(configuration, element("environmentVariables",arrayOfenvVars));
         }
         return configuration;
     }

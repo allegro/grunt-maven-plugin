@@ -45,7 +45,7 @@ public class ExecNpmMojo extends AbstractExecutableMojo {
      * Map of environment variables passed to npm install.
      */
     @Parameter
-    protected Map npmEnvironmentVar;
+    protected Map<String,String> npmEnvironmentVar;
 
     @Override
     protected List<Executable> getExecutables() {

@@ -47,7 +47,7 @@ public class Executable {
 
     private final String[] successCodes;
 
-    private Map environmentVar;
+    private Map<String,String> environmentVar;
 
     public Executable(String executableName, String[] successCodes) {
         this.executableName = executableName;
@@ -78,11 +78,11 @@ public class Executable {
         arguments.add(element(name(ARGUMENT_NAME), normalizeArgument(value, whitespaceReplacement)));
     }
 
-  public Map getEnvironmentVar() {
+  public Map<String,String> getEnvironmentVar() {
     return environmentVar;
   }
 
-  public void setEnvironmentVar(Map environmentVar) {
+  public void setEnvironmentVar(Map<String,String> environmentVar) {
     this.environmentVar = environmentVar;
   }
 
