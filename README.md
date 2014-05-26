@@ -17,7 +17,7 @@ Globally installed [**grunt-cli**](http://gruntjs.com/getting-started) is option
 
 **grunt-maven-plugin** can also run `bower install` from [**bower**](http://bower.io/) to install front-end dependencies.
 
-grunt-maven-plugin is compatible with JDK 6+ and Maven 3+.
+grunt-maven-plugin is compatible with JDK 6+ and Maven 2.1+.
 
 ## Motivation
 
