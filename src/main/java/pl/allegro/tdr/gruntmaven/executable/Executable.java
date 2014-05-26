@@ -17,6 +17,7 @@ package pl.allegro.tdr.gruntmaven.executable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -47,7 +48,7 @@ public class Executable {
 
     private final String[] successCodes;
 
-    private Map<String,String> environmentVar;
+    private Map<String, String> environmentVars = new HashMap<String, String>();
 
     public Executable(String executableName, String[] successCodes) {
         this.executableName = executableName;
@@ -78,15 +79,19 @@ public class Executable {
         arguments.add(element(name(ARGUMENT_NAME), normalizeArgument(value, whitespaceReplacement)));
     }
 
-  public Map<String,String> getEnvironmentVar() {
-    return environmentVar;
-  }
+    public boolean hasEnvironmentVars() {
+        return !environmentVars.isEmpty();
+    }
 
-  public void setEnvironmentVar(Map<String,String> environmentVar) {
-    this.environmentVar = environmentVar;
-  }
+    public Map<String, String> environmentVars() {
+        return Collections.unmodifiableMap(environmentVars);
+    }
 
-  private String normalizeArgument(String argument, String whitespaceReplacement) {
+    public void addEnvironmentVars(Map<String, String> environmentVars) {
+        this.environmentVars.putAll(environmentVars);
+    }
+
+    private String normalizeArgument(String argument, String whitespaceReplacement) {
         Matcher matcher = WHITESPACED_OPTION_PATTERN.matcher(argument);
         if (matcher.find()) {
             return argument.replaceFirst("\\s+", whitespaceReplacement);

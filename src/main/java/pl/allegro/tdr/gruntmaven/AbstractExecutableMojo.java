@@ -122,14 +122,8 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
 
         configuration = concat(configuration, new Element[]{element(name("workingDirectory"), gruntBuildDirectory)});
 
-        if (executable.getEnvironmentVar() != null) {
-            List<Element> envVars = new ArrayList<Element>();
-            for (Map.Entry<String, String> entry : executable.getEnvironmentVar().entrySet()) {
-                envVars.add(element(entry.getKey(), entry.getValue()));
-            }
-            Element[] arrayOfenvVars = envVars.toArray(new Element[envVars.size()]);
-            configuration = concat(configuration, element("environmentVariables", arrayOfenvVars));
-
+        if (executable.hasEnvironmentVars()) {
+            configuration = concat(configuration, element("environmentVariables", elementsFromMap(executable.environmentVars())));
         }
 
         return configuration;
@@ -183,6 +177,15 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
         T[] result = Arrays.copyOf(array1, array1.length + array2.length);
         System.arraycopy(array2, 0, result, array1.length, array2.length);
         return result;
+    }
+
+    private Element[] elementsFromMap(Map<String, String> elements) {
+        List<Element> elementList = new ArrayList<Element>();
+        for (Map.Entry<String, String> entry : elements.entrySet()) {
+            elementList.add(element(entry.getKey(), entry.getValue()));
+        }
+
+        return elementList.toArray(new Element[elementList.size()]);
     }
 
     /**

@@ -51,7 +51,7 @@ public class ExecNpmMojo extends AbstractExecutableMojo {
     protected List<Executable> getExecutables() {
         Executable executable = new Executable(npmExecutable);
 
-        executable.setEnvironmentVar(npmEnvironmentVar);
+        executable.addEnvironmentVars(npmEnvironmentVar);
 
         executable.addArgument(NPM_INSTALL_COMMAND);
         appendNoColorsArgument(executable);

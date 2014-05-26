@@ -65,6 +65,8 @@ public class ExecNpmOfflineMojo extends ExecNpmMojo {
         executable.addArgument("--ignore-scripts");
         appendNoColorsArgument(executable);
 
+        executable.addEnvironmentVars(npmEnvironmentVar);
+
         return executable;
     }
 
