@@ -314,6 +314,9 @@ but most probably it is enough to override **targetPath** property.
 
 ## Changelog
 
+* **1.3.1** (26.05.2014)
+  * support for Maven 2.1+ and 3.*
+  * option to specify NPM env variables
 * **1.3.0** (22.04.2014)
   * **dropped** support for *link-node-modules*
 * **1.2.2** (31.03.2014)
