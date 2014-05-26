@@ -15,12 +15,14 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
-import pl.allegro.tdr.gruntmaven.executable.Executable;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import pl.allegro.tdr.gruntmaven.executable.Executable;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Executes npm install to download all dependencies declared in
@@ -39,9 +41,17 @@ public class ExecNpmMojo extends AbstractExecutableMojo {
     @Parameter(property = "npmExecutable", defaultValue = "npm")
     protected String npmExecutable;
 
+    /**
+     * Map of environment variables passed to npm install.
+     */
+    @Parameter
+    protected Map<String,String> npmEnvironmentVar;
+
     @Override
     protected List<Executable> getExecutables() {
         Executable executable = new Executable(npmExecutable);
+
+        executable.setEnvironmentVar(npmEnvironmentVar);
 
         executable.addArgument(NPM_INSTALL_COMMAND);
         appendNoColorsArgument(executable);
