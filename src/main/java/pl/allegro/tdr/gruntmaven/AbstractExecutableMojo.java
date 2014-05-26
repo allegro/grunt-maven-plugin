@@ -16,8 +16,12 @@
 package pl.allegro.tdr.gruntmaven;
 
 import pl.allegro.tdr.gruntmaven.executable.Executable;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -117,6 +121,13 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
         }
 
         configuration = concat(configuration, new Element[]{element(name("workingDirectory"), gruntBuildDirectory)});
+        if(executable.getEnvironmentVar() != null){
+          List envVars = new ArrayList();
+          for(Object key: executable.getEnvironmentVar().keySet()){
+            envVars.add(element(key.toString(), executable.getEnvironmentVar().get(key).toString()));
+          }
+          configuration = concat(configuration, new Element[]{element("environmentVariables",(Element[])envVars.toArray(new Element[0]))});
+        }
         return configuration;
     }
 

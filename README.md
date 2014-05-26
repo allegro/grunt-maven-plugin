@@ -44,6 +44,11 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
             <gruntOption>--verbose</gruntOption>
         </gruntOptions>
 
+        <!-- example npm install env variable -->
+        <npmEnvironmentVar>
+            <PHANTOMJS_CDNURL>http://cnpmjs.org/downloads</PHANTOMJS_CDNURL>
+        </npmEnvironmentVar>
+
         <!-- example options usage to filter variables in given resource -->
         <filteredResources>
             <filteredResource>maven-properties.json</filteredResource>
@@ -161,6 +166,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 * **gruntBuildDirectory** : path to Grunt build directory (target for Grunt); defaults to *${basedir}/target-grunt*
 * **sourceDirectory** : path to directory containing source JavaScript project directory; defaults to *${basedir}/src/main/webapp*
 * **jsSourceDirectory** : name of directory relative to *sourceDirectory*, which contents are going to be copied to *jsTargetDirectory*; defaults to *static*
+* **npmEnvironmentVar** : map of environmental variables passed down to npm install command; might be useful for npm repo customization
 
 #### node
 

@@ -18,6 +18,7 @@ package pl.allegro.tdr.gruntmaven.executable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.twdata.maven.mojoexecutor.MojoExecutor;
@@ -45,6 +46,8 @@ public class Executable {
     private List<MojoExecutor.Element> arguments = new ArrayList<MojoExecutor.Element>();
 
     private final String[] successCodes;
+
+    private Map environmentVar;
 
     public Executable(String executableName, String[] successCodes) {
         this.executableName = executableName;
@@ -75,7 +78,15 @@ public class Executable {
         arguments.add(element(name(ARGUMENT_NAME), normalizeArgument(value, whitespaceReplacement)));
     }
 
-    private String normalizeArgument(String argument, String whitespaceReplacement) {
+  public Map getEnvironmentVar() {
+    return environmentVar;
+  }
+
+  public void setEnvironmentVar(Map environmentVar) {
+    this.environmentVar = environmentVar;
+  }
+
+  private String normalizeArgument(String argument, String whitespaceReplacement) {
         Matcher matcher = WHITESPACED_OPTION_PATTERN.matcher(argument);
         if (matcher.find()) {
             return argument.replaceFirst("\\s+", whitespaceReplacement);
