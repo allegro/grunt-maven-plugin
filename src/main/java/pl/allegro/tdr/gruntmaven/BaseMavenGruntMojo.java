@@ -43,7 +43,7 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     /**
      * Path to dir, where jsSourceDir is located, defaults to src/main/webapp.
      */
-    @Parameter(property = "sourceDirectory", defaultValue = "src/main/webapp/")
+    @Parameter(property = "sourceDirectory", defaultValue = "src/main/webapp")
     protected String sourceDirectory;
 
     /**
