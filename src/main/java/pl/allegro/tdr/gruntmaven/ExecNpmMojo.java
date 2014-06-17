@@ -42,10 +42,16 @@ public class ExecNpmMojo extends AbstractExecutableMojo {
     protected String npmExecutable;
 
     /**
+     * List of additional options passed to npm when calling install.
+     */
+    @Parameter(property = "npmOptions")
+    private String[] npmOptions;
+
+    /**
      * Map of environment variables passed to npm install.
      */
     @Parameter
-    protected Map<String,String> npmEnvironmentVar;
+    protected Map<String, String> npmEnvironmentVar;
 
     @Override
     protected List<Executable> getExecutables() {
@@ -55,8 +61,13 @@ public class ExecNpmMojo extends AbstractExecutableMojo {
 
         executable.addArgument(NPM_INSTALL_COMMAND);
         appendNoColorsArgument(executable);
+        appendNpmOptions(executable);
 
         return Arrays.asList(executable);
+    }
+
+    protected void appendNpmOptions(Executable executable) {
+        executable.addNormalizedArguments(npmOptions, "=");
     }
 
     protected void appendNoColorsArgument(Executable executable) {

@@ -166,17 +166,22 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 * **gruntBuildDirectory** : path to Grunt build directory (target for Grunt); defaults to *${basedir}/target-grunt*
 * **sourceDirectory** : path to directory containing source JavaScript project directory; defaults to *${basedir}/src/main/webapp*
 * **jsSourceDirectory** : name of directory relative to *sourceDirectory*, which contents are going to be copied to *jsTargetDirectory*; defaults to *static*
-* **npmEnvironmentVar** : map of environmental variables passed down to npm install command; might be useful for npm repo customization
 
 #### node
 
 * **nodeExecutable** : name of globally available **node** executable; defaults to *node*
+
+#### npm
+
 * **npmExecutable** : name of globally available **npm** executable; defaults to *npm*
+* **npmEnvironmentVar** : map of environmental variables passed down to npm install command; might be useful for npm repo customization
+* **npmOptions** : list of custom options passed to **npm** when calling `npm install` (defaults to empty)
 
 #### offline
 
 * **npmOfflineModulesFile** : name of tar-ed **node_modules** file; defaults to *node_modules.tar*
 * **npmOfflineModulesFilePath** : path to **node_modules** file, relative to project basedir; defaults to *sourceDirectory/jsSourceDirectory*
+* **npmRebuildOptions** : list of custom options passed to **npm** when calling `npm rebuild` (defaults to empty)
 
 #### bower
 

@@ -79,6 +79,14 @@ public class Executable {
         arguments.add(element(name(ARGUMENT_NAME), normalizeArgument(value, whitespaceReplacement)));
     }
 
+    public void addNormalizedArguments(String[] values, String whitespaceReplacement) {
+        if(values != null) {
+            for(String value : values) {
+                addNormalizedArgument(value, whitespaceReplacement);
+            }
+        }
+    }
+
     public boolean hasEnvironmentVars() {
         return !environmentVars.isEmpty();
     }

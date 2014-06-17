@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import pl.allegro.tdr.gruntmaven.archive.TarUtil;
 import pl.allegro.tdr.gruntmaven.executable.Executable;
 
@@ -34,6 +35,12 @@ public class ExecNpmOfflineMojo extends ExecNpmMojo {
     private static final String NODE_MODULES_DIR_NAME = "node_modules";
 
     private static final String NPM_REBUILD_COMMAND = "rebuild";
+
+    /**
+     * List of additional options passed to npm when callign rebuild.
+     */
+    @Parameter(property = "npmRebuildOptions")
+    private String[] npmRebuildOptions;
 
     @Override
     protected List<Executable> getExecutables() {
@@ -64,6 +71,7 @@ public class ExecNpmOfflineMojo extends ExecNpmMojo {
         executable.addArgument(NPM_INSTALL_COMMAND);
         executable.addArgument("--ignore-scripts");
         appendNoColorsArgument(executable);
+        appendNpmOptions(executable);
 
         executable.addEnvironmentVars(npmEnvironmentVar);
 
@@ -74,6 +82,7 @@ public class ExecNpmOfflineMojo extends ExecNpmMojo {
         Executable executable = new Executable(npmExecutable);
         executable.addArgument(NPM_REBUILD_COMMAND);
         appendNoColorsArgument(executable);
+        executable.addNormalizedArguments(npmRebuildOptions, "=");
 
         return executable;
     }
