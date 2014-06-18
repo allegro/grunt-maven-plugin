@@ -96,7 +96,9 @@ public class Executable {
     }
 
     public void addEnvironmentVars(Map<String, String> environmentVars) {
-        this.environmentVars.putAll(environmentVars);
+        if(environmentVars != null) {
+            this.environmentVars.putAll(environmentVars);
+        }
     }
 
     private String normalizeArgument(String argument, String whitespaceReplacement) {
