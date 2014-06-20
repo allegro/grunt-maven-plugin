@@ -318,7 +318,9 @@ but most probably it is enough to override **targetPath** property.
 
 
 ## Changelog
-
+* **1.3.2** (19.06.2016)
+  * support for defining npm command line parameters
+  * fixed bug from 1.3.1 - null pointer when no npm env variables specified
 * **1.3.1** (26.05.2014)
   * support for Maven 2.1+ and 3.*
   * option to specify NPM env variables
