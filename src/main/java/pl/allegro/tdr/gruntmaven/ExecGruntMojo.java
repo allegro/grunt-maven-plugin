@@ -27,7 +27,7 @@ import pl.allegro.tdr.gruntmaven.executable.Executable;
  *
  * @author Adam Dubiel
  */
-@Mojo(name = "grunt", defaultPhase = LifecyclePhase.TEST)
+@Mojo(name = "grunt", defaultPhase = LifecyclePhase.COMPILE)
 public class ExecGruntMojo extends AbstractExecutableMojo {
 
     /**

@@ -32,7 +32,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
  *
  * @author Adam Dubiel
  */
-@Mojo(name = "create-resources", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "create-resources", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
     private static final String INNER_PROPERTIES_RESOURCE_NAME = "grunt-maven.json";
@@ -77,8 +77,7 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
     private String[] filteredResources;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-
+    public void executeInternal() throws MojoExecutionException, MojoFailureException {
         executeMojo(plugin(
                 groupId(RESOURCES_MAVEN_GROUP),
                 artifactId(RESOURCES_MAVEN_ARTIFACT),

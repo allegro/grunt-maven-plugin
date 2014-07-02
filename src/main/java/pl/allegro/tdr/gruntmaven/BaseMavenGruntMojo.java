@@ -20,7 +20,11 @@ import java.io.IOException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.PluginManager;
+import org.apache.maven.plugin.lifecycle.Execution;
+import org.apache.maven.plugin.lifecycle.Phase;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -59,6 +63,9 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     @Parameter(property = "npmOfflineModulesFile", defaultValue = "node_modules.tar")
     protected String npmOfflineModulesFile;
 
+    @Parameter(property = "disabled", defaultValue = "false")
+    private boolean disabled;
+    
     /**
      * Path to packed node_modules TAR file directory relative to basedir,
      * defaults to statics directory (ex webapp/static/).
@@ -72,6 +79,7 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true, required = true)
     private MavenSession mavenSession;
 
+    
     /**
      * Maven 2.x compatibility.
      */
@@ -79,6 +87,18 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     @SuppressWarnings("deprecation")
     private PluginManager pluginManager;
 
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if(!disabled) {
+            executeInternal();
+        }
+        else {
+            getLog().info("Execution disabled using configuration option.");
+        }
+    }
+    
+    protected abstract void executeInternal()  throws MojoExecutionException, MojoFailureException;
+    
     protected String basedir() {
         try {
             return mavenProject.getBasedir().getCanonicalPath();

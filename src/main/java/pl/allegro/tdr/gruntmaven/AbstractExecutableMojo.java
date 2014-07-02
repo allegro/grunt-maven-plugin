@@ -81,7 +81,7 @@ public abstract class AbstractExecutableMojo extends BaseMavenGruntMojo {
     protected String execMavenPluginVersion;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void executeInternal() throws MojoExecutionException, MojoFailureException {
         for (Executable executable : getExecutables()) {
             runExecutable(executable);
         }

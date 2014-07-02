@@ -24,7 +24,6 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.artifactId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
@@ -61,7 +60,7 @@ public class CleanResourcesMojo extends BaseMavenGruntMojo {
     protected String mavenCleanPluginVersion;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void executeInternal() throws MojoExecutionException, MojoFailureException {
         executeMojo(plugin(
                 groupId(CLEAN_MAVEN_GROUP),
                 artifactId(CLEAN_MAVEN_ARTIFACT),

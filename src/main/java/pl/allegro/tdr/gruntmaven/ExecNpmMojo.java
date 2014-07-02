@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * @author Adam Dubiel
  */
-@Mojo(name = "npm", defaultPhase = LifecyclePhase.TEST)
+@Mojo(name = "npm", defaultPhase = LifecyclePhase.COMPILE)
 public class ExecNpmMojo extends AbstractExecutableMojo {
 
     protected static final String NPM_INSTALL_COMMAND = "install";
