@@ -34,7 +34,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.3.2</version>
+    <version>1.4.0</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -160,6 +160,7 @@ Plugin options available in `<configuration>...</configuration>` are:
 * **showColors** : should Grunt and npm use color output; defaults to *false*
 * **filteredResources** : list of files (or expressions) that will be filtered using **maven-resources-plugin** when creating resources,
 remember to exclude those files from integrated workflow config, as else Grunt will override filtered values
+* **disabled** : skip execution of plugin; defaults to *false*
 
 #### environment
 
@@ -318,7 +319,10 @@ but most probably it is enough to override **targetPath** property.
 
 
 ## Changelog
-* **1.3.2** (19.06.2016)
+* **1.4.0** (07.07.2014)
+  * changed default lifecycle bindings
+  * support for disabling execution based on flag
+* **1.3.2** (19.06.2014)
   * support for defining npm command line parameters
   * fixed bug from 1.3.1 - null pointer when no npm env variables specified
 * **1.3.1** (26.05.2014)
