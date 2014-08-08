@@ -16,10 +16,11 @@
 package pl.allegro.tdr.gruntmaven.archive;
 
 import java.io.*;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.archiver.tar.TarEntry;
 import org.codehaus.plexus.archiver.tar.TarInputStream;
-import org.codehaus.plexus.util.IOUtil;
 
 /**
  *
@@ -47,7 +48,7 @@ public final class TarUtil {
                 } else {
                     logger.debug("creating file at: " + outputFile.getCanonicalPath());
                     output = new FileOutputStream(outputFile);
-                    IOUtil.copy(tarInput, output);
+                    IOUtils.copy(tarInput, output);
                     output.flush();
                     output.close();
                 }
@@ -57,8 +58,8 @@ public final class TarUtil {
         } catch (IOException exception) {
             throw new IllegalStateException(exception);
         } finally {
-            IOUtil.close(tarInput);
-            IOUtil.close(output);
+            IOUtils.closeQuietly(tarInput);
+            IOUtils.closeQuietly(output);
         }
     }
 }
