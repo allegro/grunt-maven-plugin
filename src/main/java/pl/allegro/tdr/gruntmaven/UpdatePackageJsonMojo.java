@@ -34,7 +34,7 @@ public class UpdatePackageJsonMojo extends BaseMavenGruntMojo {
 
 
 	@Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
+	public void executeInternal() throws MojoExecutionException, MojoFailureException {
 		String targetFileName = sourceDirectory + jsSourceDirectory + File.separator + PACKAGE_JSON_RESOURCE_NAME;
 		File targetFile = new File(targetFileName);
 		if( !targetFile.exists() ) {

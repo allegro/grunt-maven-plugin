@@ -74,7 +74,7 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     protected String npmOfflineModulesFilePath;
 
     @Parameter(property = "project", readonly = true, required = true)
-    private MavenProject mavenProject;
+    protected MavenProject mavenProject;
 
     @Parameter(property = "session", readonly = true, required = true)
     private MavenSession mavenSession;
