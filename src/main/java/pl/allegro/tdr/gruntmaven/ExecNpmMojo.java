@@ -15,12 +15,14 @@
  */
 package pl.allegro.tdr.gruntmaven;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
+import pl.allegro.tdr.gruntmaven.executable.Executable;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Executes npm install to download all dependencies declared in
@@ -28,32 +30,49 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
  *
  * @author Adam Dubiel
  */
-@Mojo(name = "npm", defaultPhase = LifecyclePhase.TEST)
+@Mojo(name = "npm", defaultPhase = LifecyclePhase.COMPILE)
 public class ExecNpmMojo extends AbstractExecutableMojo {
 
-    private static final String NPM_INSTALL_COMMAND = "install";
+    protected static final String NPM_INSTALL_COMMAND = "install";
 
     /**
      * Name of npm executable in PATH, defaults to npm.
      */
     @Parameter(property = "npmExecutable", defaultValue = "npm")
-    private String npmExecutable;
+    protected String npmExecutable;
+
+    /**
+     * List of additional options passed to npm when calling install.
+     */
+    @Parameter(property = "npmOptions")
+    private String[] npmOptions;
+
+    /**
+     * Map of environment variables passed to npm install.
+     */
+    @Parameter
+    protected Map<String, String> npmEnvironmentVar;
 
     @Override
-    protected String getExecutable() {
-        return npmExecutable;
+    protected List<Executable> getExecutables() {
+        Executable executable = new Executable(npmExecutable);
+
+        executable.addEnvironmentVars(npmEnvironmentVar);
+
+        executable.addArgument(NPM_INSTALL_COMMAND);
+        appendNoColorsArgument(executable);
+        appendNpmOptions(executable);
+
+        return Arrays.asList(executable);
     }
 
-    @Override
-    protected Element[] getArguments() {
-        List<Element> arguments = new ArrayList<Element>();
+    protected void appendNpmOptions(Executable executable) {
+        executable.addNormalizedArguments(npmOptions, "=");
+    }
 
-        arguments.add(element(name("argument"), NPM_INSTALL_COMMAND));
-
+    protected void appendNoColorsArgument(Executable executable) {
         if (!showColors) {
-            arguments.add(element(name("argument"), "--color=false"));
+            executable.addArgument("--color=false");
         }
-
-        return arguments.toArray(new Element[arguments.size()]);
     }
 }

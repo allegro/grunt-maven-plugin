@@ -27,12 +27,11 @@ import pl.allegro.tdr.gruntmaven.resources.Resource;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 /**
- * MOJO executing maven-resources-plugin to create target/{jsTargetDir} directory
- * containing all statics.
+ * MOJO executing maven-resources-plugin to create target/{jsTargetDir} directory containing all statics.
  *
  * @author Adam Dubiel
  */
-@Mojo(name = "create-resources", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "create-resources", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class CreateResourcesMojo extends BaseMavenGruntMojo {
 
     private static final String INNER_PROPERTIES_RESOURCE_NAME = "grunt-maven.json";
@@ -61,24 +60,27 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
     private String mavenResourcesPluginVersion;
 
     /**
-     * Should copy-resources plugin overwrite resources even if target has newer
-     * version (see maven-resources-plugin documentation for more details),
-     * defaults to true.
+     * Should copy-resources plugin overwrite resources even if target has newer version (see maven-resources-plugin documentation for more
+     * details), defaults to true.
      */
     @Parameter(property = "overwriteResources", defaultValue = "true")
     private boolean overwriteResources;
 
     /**
-     * Name of resources that should be filtered by Maven. When using integrated
-     * workflow, be sure to make Grunt ignore there resources, as it will overwrite
-     * filtered values.
+     * Name of resources that should be filtered by Maven. When using integrated workflow, be sure to make Grunt ignore there resources, as
+     * it will overwrite filtered values.
      */
     @Parameter(property = "filteredResources")
     private String[] filteredResources;
 
-    @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    /**
+     * Resources that should not be copied during create-resources phase.
+     */
+    @Parameter(property = "excludedResources")
+    private String[] excludedResources;
 
+    @Override
+    public void executeInternal() throws MojoExecutionException, MojoFailureException {
         executeMojo(plugin(
                 groupId(RESOURCES_MAVEN_GROUP),
                 artifactId(RESOURCES_MAVEN_ARTIFACT),
@@ -89,7 +91,7 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                         element(name("outputDirectory"), gruntBuildDirectory),
                         element(name("resources"), createResourceElements())
                 ),
-                executionEnvironment(mavenProject, mavenSession, pluginManager));
+                pluginExecutionEvnironment());
 
         createWorkflowTasksDirectory();
         createInnerPropertiesResource();
@@ -103,6 +105,9 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                 element(name("includes"),
                         element(name("include"), "**/*")
                 ),
+                element(name("excludes"),
+                        createResourcesListElement(excludedResources, "exclude", element(name("exclude"), "**/" + npmOfflineModulesFile))
+                ),
                 element(name("filtering"), "false")
         );
         resourceElements.add(normalResourcesElement);
@@ -110,7 +115,7 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
         if (filteredResources.length > 0) {
             Element filteredResourcesElement = element(name("resource"),
                     element(name("directory"), sourceDirectory + "/" + jsSourceDirectory),
-                    element(name("includes"), createFilteredResources()),
+                    element(name("includes"), createResourcesListElement(filteredResources, "include")),
                     element(name("filtering"), "true")
             );
             resourceElements.add(filteredResourcesElement);
@@ -126,11 +131,15 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
         }
     }
 
-    private Element[] createFilteredResources() {
-        Element[] elements = new Element[filteredResources.length];
+    private Element[] createResourcesListElement(String[] resources, String elementName, Element... append) {
+        Element[] elements = new Element[resources.length + append.length];
 
-        for (int index = 0; index < filteredResources.length; ++index) {
-            elements[index] = element(name("include"), filteredResources[index]);
+        int index = 0;
+        for (; index < resources.length; ++index) {
+            elements[index] = element(name(elementName), resources[index]);
+        }
+        for (int appendIndex = 0; appendIndex < append.length; appendIndex++, ++index) {
+            elements[index] = append[appendIndex];
         }
 
         return elements;
@@ -152,20 +161,21 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
         StringBuilder builder = new StringBuilder(FILTERED_RESOURCES_JSON_LENGTH);
         builder.append("[");
 
-        int index;
-        for (index = 0; index < filteredResources.length; ++index) {
+        builder.append("\"").append("**/").append(npmOfflineModulesFile).append("\"").append(", ");
+        for (int index = 0; index < filteredResources.length; ++index) {
             builder.append("\"").append(filteredResources[index]).append("\"").append(", ");
         }
-        if (index > 0) {
-            builder.delete(builder.length() - 2, builder.length());
+        for (int index = 0; index < excludedResources.length; ++index) {
+            builder.append("\"").append(excludedResources[index]).append("\"").append(", ");
         }
+        builder.delete(builder.length() - 2, builder.length());
 
         builder.append("]");
         return builder.toString();
     }
 
     private String pathToWatchDirectory() {
-        return basedir() + File.separator + sourceDirectory + jsSourceDirectory;
+        return fullJsSourceDirectory();
     }
 
     private String pathToWorkflowTasksDirectory() {

@@ -1,23 +1,27 @@
 # grunt-maven-plugin
 
-**grunt-maven-plugin** plugin allows to integrate **Grunt** tasks into **Maven** build process. [**Grunt**](http://gruntjs.com/) is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and \*nix systems.
+**grunt-maven-plugin** plugin allows you to integrate **Grunt** tasks into the **Maven** build process. [**Grunt**](http://gruntjs.com/) is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and \*nix systems.
 
 **grunt-maven-plugin** comes with unique Maven+Grunt Integrated Workflow which removes all impediments present when trying to build project using two different build tools.
 
 
-*Version 1.2.0 intorduces new set of tasks for Maven+Grunt Integrated Workflow. If you were using earlier versions, please consult [migration guide](https://github.com/allegro/grunt-maven-plugin/wiki/Migrating-from-1.1.x-to-1.2.x) before upgrading.*
+*Version 1.2.0 introduces new set of tasks for Maven+Grunt Integrated Workflow. If you were using earlier versions, please consult [migration guide](https://github.com/allegro/grunt-maven-plugin/wiki/Migrating-from-1.1.x-to-1.2.x) before upgrading.*
 
+*Version 1.3.0 drops support for linking node modules, since users reported problems using maven-junction-plugin. Please
+use npm-offline for offline capabilities.*
 
 ## Prerequisites
 
 The only required dependency is [**nodejs**](http://nodejs.org/) with **npm**.
 Globally installed [**grunt-cli**](http://gruntjs.com/getting-started) is optional and preferred, but not necessary, as installing custom node modules can be problematic in some environments (ex. CI servers). Additional configuration is needed when using local **grunt-cli**.
 
-grunt-maven-plugin is compatible with JDK 6+ and Maven 3+.
+**grunt-maven-plugin** can also run `bower install` from [**bower**](http://bower.io/) to install front-end dependencies.
+
+grunt-maven-plugin is compatible with JDK 6+ and Maven 2.1+.
 
 ## Motivation
 
-**grunt-maven-plugin** came to life because I needed a good tool to integrate Maven and Grunt. By good i mean not just firing off **grunt** process, but a tool that would respect rules from both backend (Maven) and frontend (Grunt) worlds. No *node_modules* in Maven sources, no Maven *src/main/webapp/..* paths in *Gruntfile.js*.
+**grunt-maven-plugin** came to life because I needed a good tool to integrate Maven and Grunt. By good i mean not just firing off a **grunt** process, but a tool that would respect rules from both backend (Maven) and frontend (Grunt) worlds. No *node_modules* in Maven sources, no Maven *src/main/webapp/..* paths in *Gruntfile.js*.
 
 **grunt-maven-plugin** allows you to create a usual NPM/Grunt project that could be built and understood by any Node developer, and put it somewhere inside Maven project. It can be extracted at any time and nothing should break. On the other side backend developers don't need to worry about pesky *node_modules* wandering around src/ - all dependencies, generated sources and deliverables live in dedicated **target-grunt** directory, doing this part of build the Maven way.
 
@@ -30,7 +34,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.2.0</version>
+    <version>1.4.1</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -39,6 +43,11 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
         <gruntOptions>
             <gruntOption>--verbose</gruntOption>
         </gruntOptions>
+
+        <!-- example npm install env variable -->
+        <npmEnvironmentVar>
+            <PHANTOMJS_CDNURL>http://cnpmjs.org/downloads</PHANTOMJS_CDNURL>
+        </npmEnvironmentVar>
 
         <!-- example options usage to filter variables in given resource -->
         <filteredResources>
@@ -51,6 +60,8 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
             <goals>
                 <goal>create-resources</goal>
                 <goal>npm</goal>
+                <!-- or npm-offline if npm failure is not an option -->
+                <goal>bower</goal>
                 <goal>grunt</goal>
             </goals>
         </execution>
@@ -71,7 +82,7 @@ options to plugin configuration and add **grunt-cli** to JS project **package.js
 
 ```javascript
 {
-    "devDepenencies": {
+    "devDependencies": {
         "grunt-cli": "~0.1.6",
         "grunt": "~0.4.2"
         /*...*/
@@ -79,33 +90,48 @@ options to plugin configuration and add **grunt-cli** to JS project **package.js
 }
 ```
 
-### Usage with preinstalled node_modules
+### Using NPM in offline mode
 
-When you want to use tool like [frontend-maven-plugin](https://github.com/eirslett/frontend-maven-plugin)
-to install node and npm locally or when you have commited-in **node_modules** directory
-(not really recommended, see [npm shronkwrap](https://npmjs.org/doc/shrinkwrap.html) to
-freeze module versions), you can make **grunt-maven-plugin** use preinstalled
-node_modules. Just replace **npm** goal with **link-node-modules** and add **nodeModulesPath**
-to configuration options. Example:
+NPM downtimes can be painful for (some) development and (all) release builds. **grunt-maven-plugin** contains
+**npm-offline** goal that uses tar-ed *node_modules* instead of running `npm install` during each build.
 
-```xml
-    <configuration>
-        <nodeModulesPath>${basedir}/preinstalled_modules_dir/</nodeModulesPath>
-    </configuration>
-    <executions>
-        <execution>
-            <goals>
-                <goal>create-resources</goal>
-                <goal>link-node-modules</goal>
-                <goal>grunt</goal>
-            </goals>
-        </execution>
-    </executions>
+**npm-offline** flow:
+
+* extract `node_modules.tar` in `target-grunt`
+* run `npm-install --ignore-scripts` in case there are any dependencies to download that were not tar-ed
+* run `npm rebuild`
+
+If *node_modules* dir already exists in *target-grunt*, it is not overriden.
+Offline flow is based on [this blogpost](http://www.letscodejavascript.com/v3/blog/2014/03/the_npm_debacle).
+
+#### Why only tar, not gz?
+
+* GIT uses compression internally anyway
+* TAR is lightweight and easy to extract
+* TAR is easier to diff
+
+If there are some compelling arguments for compressing this archive, please post an issue and we might add support in future
+releases.
+
+#### Preparing node_modules.tar
+
+In `target-grunt`:
+
+```
+rm -rf node_modules/
+npm install --ignore-scripts
+tar cf node_modules.tar node_modules/
+mv node_modules.tar ../src/main/webapp/static/
 ```
 
-Under the hood it uses [maven-junction-plugin](http://pyx4j.com/snapshot/pyx4j/pyx4j-maven-plugins/maven-junction-plugin/introduction.html)
-to create a link between provided path and *gruntBuildDirectory*. Grunt thinks it has
-its modules in place and executes flawlessly.
+### Using linked node_modules
+
+Removed in 1.3.0 release, use **npm-offline** instead.
+
+### Working example
+
+[Sandbox](https://github.com/kielo/grunt-maven-plugin-sandbox) project contains simple usage example. It is used to PoC/develop/test new features, so it always stays up to date with SNAPSHOT version.
+
 
 ## How it works?
 
@@ -121,9 +147,9 @@ its modules in place and executes flawlessly.
 
 1. `npm install` is called, fetching all dependencies
 
-1. `grunt` is run to complete build process
+1. `grunt` is run to complete the build process
 
-Since plugin creates own target dir, it should be added to ignored resources in SCM configuration (like .gitignore).
+Because the plugin creates its own target dir, it should be added to ignored resources in SCM configuration (like .gitignore).
 
 ## grunt-maven-plugin options
 
@@ -134,6 +160,9 @@ Plugin options available in `<configuration>...</configuration>` are:
 * **showColors** : should Grunt and npm use color output; defaults to *false*
 * **filteredResources** : list of files (or expressions) that will be filtered using **maven-resources-plugin** when creating resources,
 remember to exclude those files from integrated workflow config, as else Grunt will override filtered values
+* **excludedResources** : list of files (or expressions) that will be excluded when creating resources,
+remember to exclude those files from integrated workflow config, as else Grunt will override filtered values
+* **disabled** : skip execution of plugin; defaults to *false*
 
 #### environment
 
@@ -144,10 +173,24 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 #### node
 
 * **nodeExecutable** : name of globally available **node** executable; defaults to *node*
-* **npmExecutable** : name of globally available **npm** executable; defaults to *npm*
-* **nodeModulesPath** : path where preinstalled **node_modules** are stored
 
-#### grunt options
+#### npm
+
+* **npmExecutable** : name of globally available **npm** executable; defaults to *npm*
+* **npmEnvironmentVar** : map of environmental variables passed down to npm install command; might be useful for npm repo customization
+* **npmOptions** : list of custom options passed to **npm** when calling `npm install` (defaults to empty)
+
+#### offline
+
+* **npmOfflineModulesFile** : name of tar-ed **node_modules** file; defaults to *node_modules.tar*
+* **npmOfflineModulesFilePath** : path to **node_modules** file, relative to project basedir; defaults to *sourceDirectory/jsSourceDirectory*
+* **npmRebuildOptions** : list of custom options passed to **npm** when calling `npm rebuild` (defaults to empty)
+
+#### bower
+
+* **bowerExecutable** : name of globally available **bower** executable; defaults to *bower*
+
+#### grunt
 
 * **target** : name of Grunt target to run (defaults to null, default Grunt target is run)
 * **gruntOptions** : list of custom options passed to grunt (defaults to empty)
@@ -158,8 +201,10 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 ## Execution goals
 
-* **create-resources** : copies resources from *sourceDirectory/jsSourceDirectory* to *gruntBuildDirectory*
+* **create-resources** : copies all files and *filteredResources* from *sourceDirectory/jsSourceDirectory* to *gruntBuildDirectory*
 * **npm** : executes `npm install` in target directory
+* **npm-offline** : reuses packed node modules instead of fetching them from npm
+* **bower** : executes `bower install` in target directory
 * **grunt** : executes Grunt in target directory
 * **clean** : deletes *gruntBuildDirectory*
 
@@ -217,16 +262,16 @@ grunt.initConfig({
     },
     prepare: {}
   },
-  
+
   mavenDist: {
     options: {
-      warName: 'war',
+      warName: '<%= gruntMavenProperties.warName %>',
       deliverables: ['**', '!non-deliverable.js'],
       gruntDistDir: 'dist'
     },
     dist: {}
   },
-  
+
   gruntMavenProperties: grunt.file.readJSON('grunt-maven.json'),
 
   watch: {
@@ -276,7 +321,23 @@ but most probably it is enough to override **targetPath** property.
 
 
 ## Changelog
-
+* **1.4.1** (02.08.2014)
+  * added option to exclude custom resources in create-resources phase
+* **1.4.0** (07.07.2014)
+  * changed default lifecycle bindings
+  * support for disabling execution based on flag
+* **1.3.2** (19.06.2014)
+  * support for defining npm command line parameters
+  * fixed bug from 1.3.1 - null pointer when no npm env variables specified
+* **1.3.1** (26.05.2014)
+  * support for Maven 2.1+ and 3.*
+  * option to specify NPM env variables
+* **1.3.0** (22.04.2014)
+  * **dropped** support for *link-node-modules*
+* **1.2.2** (31.03.2014)
+  * support for npm offline mode
+* **1.2.1** (25.02.2014)
+  * executing `bower install`
 * **1.2.0** (07.02.2014)
   * new Maven+Grunt NPM multitasks
 * **1.1.4** (05.02.2014)
