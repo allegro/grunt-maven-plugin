@@ -190,6 +190,15 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 * **bowerExecutable** : name of globally available **bower** executable; defaults to *bower*
 
+#### bower-maven
+
+You can use your jar dependencies as a bower repository:
+if any module is present in META-INF/bower/ of a maven dependency it will be added to your bower.json
+
+This way you can define a REST API and create the AngularJS module with controllers and directives for this REST API, all will be package and host in your maven repository
+
+Only compatible with maven 3.1+
+
 #### grunt
 
 * **target** : name of Grunt target to run (defaults to null, default Grunt target is run)
@@ -205,6 +214,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 * **npm** : executes `npm install` in target directory
 * **npm-offline** : reuses packed node modules instead of fetching them from npm
 * **bower** : executes `bower install` in target directory
+* **bower-maven** : check for every bower module in jar dependencies
 * **grunt** : executes Grunt in target directory
 * **clean** : deletes *gruntBuildDirectory*
 
