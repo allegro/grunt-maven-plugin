@@ -119,7 +119,7 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
         return sourceDirectory + File.separator + jsSourceDirectory;
     }
 
-    protected MojoExecutor.ExecutionEnvironment pluginExecutionEvnironment() {
+    protected MojoExecutor.ExecutionEnvironment pluginExecutionEnvironment() {
         MojoExecutor.ExecutionEnvironment environment;
         try {
             Object o = mavenSession.lookup("org.apache.maven.plugin.BuildPluginManager");
