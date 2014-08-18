@@ -102,7 +102,8 @@ to
     "angular-scenario": "1.2.6"
   },
   "version": "0.0.0"
-}```
+}
+```
 
 And the UserModule-1.0.0-SNAPSHOT.jar.zip contains all the javascript files from my module.
 
