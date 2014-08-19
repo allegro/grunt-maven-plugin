@@ -23,7 +23,6 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -48,7 +47,36 @@ import com.google.gson.GsonBuilder;
 @Mojo(name = "bower-maven", defaultPhase = LifecyclePhase.PROCESS_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class BowerRepositoryMojo extends BaseMavenGruntMojo {
 
+	private class WebjarComponent {
+		String name;
+		String version;
+		ZipOutputStream output;
+		String zipFileName;
+		
+		public WebjarComponent(String fullname, String outputDir) throws FileNotFoundException {
+			name = fullname.substring(0,fullname.indexOf('/'));
+			version = fullname.substring(fullname.indexOf('/')+1);
+			zipFileName = outputDir + name + "-" + version + ".zip";
+			output = new ZipOutputStream(new FileOutputStream(
+					zipFileName));
+		}
+		
+		public String toString() {
+			return name + "-" + version + ".zip";
+		}
+		public String getName() {
+			return name;
+		}
+		public String getZipName() {
+			return zipFileName;
+		}
+		public ZipOutputStream getOutput() {
+			return output;
+		}
+	}
 	private static final String BOWER_MAVEN_FOLDER = "bower-maven-repo/";
+
+	private static final String WEBJARS_PATH = "META-INF/resources/webjars/";
 
 	private Map<Object, Object> bowerDependencies = null;
 
@@ -94,8 +122,80 @@ public class BowerRepositoryMojo extends BaseMavenGruntMojo {
 	@Parameter(property = "scope")
 	private String scope;
 
-	private final String BOWER_FOLDER = "META-INF/bower/";
+	@Parameter(property = "jarSourceDirectory")
+	private String jarSourceDirectory = WEBJARS_PATH;
 
+	protected String getComponentNameFromPath(String path) {
+		if (path.length() < 4) {
+			return null;
+		}
+		Integer limit = path.indexOf('/', path.indexOf('/')+1);
+		if (limit < 0) {
+			return null;
+		}
+		String componentFullname = path.substring(0,limit);
+		if (path.length() == componentFullname.length() + 1) {
+			return null;
+		}
+		return componentFullname;
+	}
+	
+	private void extractWebjar(File jarFile, String outputDir)
+			throws FileNotFoundException {
+		// Load the jar
+		ZipInputStream stream = new ZipInputStream(new FileInputStream(jarFile));
+		ZipEntry entry;
+		if (!outputDir.endsWith(File.separator)) {
+			outputDir += File.separator;
+		}
+		Map<String,WebjarComponent> components = new HashMap<String,WebjarComponent>();
+		/*
+		 *  Extract everything from the META-INF/resources/webjars
+		 *  
+		 *  Then component/version/contents
+		 */
+		try {
+			while ((entry = stream.getNextEntry()) != null) {
+				if (entry.getName().startsWith(jarSourceDirectory)
+						&& entry.getName().length() > jarSourceDirectory.length()) {
+					// component/version/contents
+					String path = entry.getName().substring(
+							jarSourceDirectory.length());
+					String componentFullname = getComponentNameFromPath(path);
+					if (componentFullname == null) {
+						continue;
+					}
+					getLog().info(path);
+					getLog().info(componentFullname);
+					path = path.substring(componentFullname.length()+1);
+					ZipEntry outEntry = new ZipEntry(path);
+					WebjarComponent component = components.get(componentFullname);
+					if (component == null) {
+						component = new WebjarComponent(componentFullname, outputDir);
+						components.put(componentFullname, component);
+					}
+					outEntry.setSize(entry.getSize());
+					component.getOutput().putNextEntry(outEntry);
+					IOUtils.copy(stream, component.getOutput());
+					component.getOutput().closeEntry();
+				}
+			}
+			
+		} catch (IOException e) {
+		} finally {
+			if (components.size() > 0) {
+				getLog().info("Adding bower dependencies from webjar " + jarFile.getName());
+			}
+			for (WebjarComponent component : components.values()) {
+				IOUtils.closeQuietly(component.getOutput());
+				getLog().info("-" + component.toString());
+				bowerDependencies.put(jarFile.getName()+"-"+component.getName(),
+						new File(component.getZipName()).getAbsolutePath());
+			}
+			IOUtils.closeQuietly(stream);
+		}
+	}
+	
 	private boolean extractBower(File jarFile, String outputDir)
 			throws FileNotFoundException {
 		// Load the jar
@@ -109,10 +209,10 @@ public class BowerRepositoryMojo extends BaseMavenGruntMojo {
 		// Extract everything from the META-INF/bower/ repository if it exists
 		try {
 			while ((entry = stream.getNextEntry()) != null) {
-				if (entry.getName().startsWith(BOWER_FOLDER)
-						&& entry.getName().length() > BOWER_FOLDER.length()) {
+				if (entry.getName().startsWith(jarSourceDirectory)
+						&& entry.getName().length() > jarSourceDirectory.length()) {
 					ZipEntry outEntry = new ZipEntry(entry.getName().substring(
-							BOWER_FOLDER.length()));
+							jarSourceDirectory.length()));
 					if (out == null) {
 						out = new ZipOutputStream(new FileOutputStream(
 								zipFileName));
@@ -246,10 +346,15 @@ public class BowerRepositoryMojo extends BaseMavenGruntMojo {
 								+ child.getArtifact().getGroupId() + ":"
 								+ child.getArtifact().getArtifactId());
 			}
+			boolean webJarMode = WEBJARS_PATH.equals(jarSourceDirectory);
 			if (child.getArtifact() != null
 					&& child.getArtifact().getFile() != null) {
 				try {
-					extractBower(child.getArtifact().getFile(), gruntBuildDirectory+BOWER_MAVEN_FOLDER);
+					if (webJarMode) {
+						extractWebjar(child.getArtifact().getFile(), gruntBuildDirectory+BOWER_MAVEN_FOLDER);
+					} else {
+						extractBower(child.getArtifact().getFile(), gruntBuildDirectory+BOWER_MAVEN_FOLDER);
+					}
 				} catch (FileNotFoundException e) {
 					getLog().warn("The artifact file is not found");
 				}
