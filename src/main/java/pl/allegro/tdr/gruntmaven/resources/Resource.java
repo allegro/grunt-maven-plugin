@@ -22,11 +22,10 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.io.InputStreamFacade;
-import org.codehaus.plexus.util.io.RawInputStreamFacade;
 
 /**
  *
@@ -68,7 +67,7 @@ public class Resource {
 
             File targetFile = new File(targetPath);
             if (!targetFile.exists() || overwrite) {
-                FileUtils.copyStreamToFile(contentAsInputStream(contents), targetFile);
+                FileUtils.copyInputStreamToFile(contentAsInputStream(contents), targetFile);
             } else {
                 logger.debug("Not overwriting file " + targetPath);
             }
@@ -77,17 +76,15 @@ public class Resource {
         }
     }
 
-    private InputStreamFacade contentAsInputStream(String content) {
-        return new RawInputStreamFacade(
-                new ByteArrayInputStream(content.getBytes())
-        );
+    private InputStream contentAsInputStream(String content) {
+        return new ByteArrayInputStream(content.getBytes());
     }
 
     private String read() throws IOException {
         InputStream stream = Resource.class.getResourceAsStream(resourceName);
         StringWriter contentsWriter = new StringWriter();
 
-        IOUtil.copy(stream, contentsWriter);
+        IOUtils.copy(stream, contentsWriter);
         return contentsWriter.toString();
     }
 
