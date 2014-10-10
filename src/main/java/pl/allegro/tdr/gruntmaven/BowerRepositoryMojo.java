@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -196,16 +197,21 @@ public class BowerRepositoryMojo extends BaseMavenGruntMojo {
 		}
 	}
 	
-	private boolean extractBower(File jarFile, String outputDir)
+	private boolean extractBower(Artifact child, String outputDir)
 			throws FileNotFoundException {
 		// Load the jar
+		File jarFile = child.getFile();
 		ZipInputStream stream = new ZipInputStream(new FileInputStream(jarFile));
 		ZipOutputStream out = null;
 		ZipEntry entry;
 		if (!outputDir.endsWith(File.separator)) {
 			outputDir += File.separator;
 		}
-		String zipFileName = outputDir + jarFile.getName() + ".zip";
+		String suffix = "";
+		if (child.isSnapshot()) {
+			suffix = new Long(new Date().getTime()).toString();
+		}
+		String zipFileName = outputDir + jarFile.getName() + suffix + ".zip";
 		// Extract everything from the META-INF/bower/ repository if it exists
 		try {
 			while ((entry = stream.getNextEntry()) != null) {
@@ -234,7 +240,7 @@ public class BowerRepositoryMojo extends BaseMavenGruntMojo {
 		}
 		if (out != null) {
 			getLog().info("Adding bower dependency " + jarFile.getName());
-			bowerDependencies.put(jarFile.getName(),
+			bowerDependencies.put(child.getGroupId() + "." + child.getArtifactId(),
 					new File(zipFileName).getAbsolutePath());
 			// Might go recursive here
 			return true;
@@ -353,7 +359,7 @@ public class BowerRepositoryMojo extends BaseMavenGruntMojo {
 					if (webJarMode) {
 						extractWebjar(child.getArtifact().getFile(), gruntBuildDirectory+BOWER_MAVEN_FOLDER);
 					} else {
-						extractBower(child.getArtifact().getFile(), gruntBuildDirectory+BOWER_MAVEN_FOLDER);
+						extractBower(child.getArtifact(), gruntBuildDirectory+BOWER_MAVEN_FOLDER);
 					}
 				} catch (FileNotFoundException e) {
 					getLog().warn("The artifact file is not found");
