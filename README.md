@@ -168,7 +168,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 
 * **gruntBuildDirectory** : path to Grunt build directory (target for Grunt); defaults to *${basedir}/target-grunt*
 * **sourceDirectory** : path to directory containing source JavaScript project directory; defaults to *${basedir}/src/main/webapp*
-* **jsSourceDirectory** : name of directory relative to *sourceDirectory*, which contents are going to be copied to *jsTargetDirectory*; defaults to *static*
+* **jsSourceDirectory** : name of directory relative to *sourceDirectory*, which contents are going to be copied to *gruntBuildDirectory*; defaults to *static*
 
 #### node
 
