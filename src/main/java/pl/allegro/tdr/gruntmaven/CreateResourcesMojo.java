@@ -153,6 +153,7 @@ public class CreateResourcesMojo extends BaseMavenGruntMojo {
                 .withFilter("targetPath", target())
                 .withFilter("sourceDirectory", sourceDirectory)
                 .withFilter("jsSourceDirectory", jsSourceDirectory)
+                .withFilter("warTargetDirectory", warTargetDirectory)
                 .withFilter("filteredFiles", filteredResourcesAsJSONArray())
                 .copyAndOverwrite(pathToWorkflowTasksDirectory() + INNER_PROPERTIES_RESOURCE_NAME);
     }

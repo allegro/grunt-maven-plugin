@@ -23,8 +23,6 @@ import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.PluginManager;
-import org.apache.maven.plugin.lifecycle.Execution;
-import org.apache.maven.plugin.lifecycle.Phase;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -51,11 +49,17 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     protected String sourceDirectory;
 
     /**
-     * Path to dir from where to copy all files that add to grunt environment -
-     * has to include package.json and Gruntfile.js, defaults to "static".
+     * Path to dir from where to copy all files that add to grunt environment - has to include package.json and Gruntfile.js, defaults to
+     * "static".
      */
     @Parameter(property = "jsSourceDirectory", defaultValue = "static")
     protected String jsSourceDirectory;
+
+    /**
+     * Path to dir inside WAR to which grunt build artifacts will be copied, defaults to jsSourceDirectory value.
+     */
+    @Parameter(property = "warTargetDirectory")
+    protected String warTargetDirectory = null;
 
     /**
      * Name of packed node_modules TAR file, defaults to node_modules.tar.
@@ -65,10 +69,9 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
 
     @Parameter(property = "disabled", defaultValue = "false")
     private boolean disabled;
-    
+
     /**
-     * Path to packed node_modules TAR file directory relative to basedir,
-     * defaults to statics directory (ex webapp/static/).
+     * Path to packed node_modules TAR file directory relative to basedir, defaults to statics directory (ex webapp/static/).
      */
     @Parameter(property = "npmOfflineModulesFilePath", defaultValue = "")
     protected String npmOfflineModulesFilePath;
@@ -79,7 +82,6 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true, required = true)
     private MavenSession mavenSession;
 
-    
     /**
      * Maven 2.x compatibility.
      */
@@ -89,16 +91,22 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if(!disabled) {
+        initializeParameters();
+        if (!disabled) {
             executeInternal();
-        }
-        else {
+        } else {
             getLog().info("Execution disabled using configuration option.");
         }
     }
-    
-    protected abstract void executeInternal()  throws MojoExecutionException, MojoFailureException;
-    
+
+    protected abstract void executeInternal() throws MojoExecutionException, MojoFailureException;
+
+    private void initializeParameters() {
+        if (warTargetDirectory == null) {
+            warTargetDirectory = jsSourceDirectory;
+        }
+    }
+
     protected String basedir() {
         try {
             return mavenProject.getBasedir().getCanonicalPath();

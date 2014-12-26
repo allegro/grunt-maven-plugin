@@ -4,11 +4,7 @@
 
 **grunt-maven-plugin** comes with unique Maven+Grunt Integrated Workflow which removes all impediments present when trying to build project using two different build tools.
 
-
-*Version 1.2.0 introduces new set of tasks for Maven+Grunt Integrated Workflow. If you were using earlier versions, please consult [migration guide](https://github.com/allegro/grunt-maven-plugin/wiki/Migrating-from-1.1.x-to-1.2.x) before upgrading.*
-
-*Version 1.3.0 drops support for linking node modules, since users reported problems using maven-junction-plugin. Please
-use npm-offline for offline capabilities.*
+*Version 1.5.0 requires grunt-maven NPM plugin 1.2.0 version for Integrated Workflow to work.*
 
 ## Prerequisites
 
@@ -34,7 +30,7 @@ Add **grunt-maven-plugin** to application build process in your *pom.xml*:
 <plugin>
     <groupId>pl.allegro</groupId>
     <artifactId>grunt-maven-plugin</artifactId>
-    <version>1.4.1</version>
+    <version>1.5.0</version>
     <configuration>
         <!-- relative to src/main/webapp/, default: static -->
         <jsSourceDirectory>path_to_js_project</jsSourceDirectory>
@@ -169,6 +165,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 * **gruntBuildDirectory** : path to Grunt build directory (target for Grunt); defaults to *${basedir}/target-grunt*
 * **sourceDirectory** : path to directory containing source JavaScript project directory; defaults to *${basedir}/src/main/webapp*
 * **jsSourceDirectory** : name of directory relative to *sourceDirectory*, which contents are going to be copied to *gruntBuildDirectory*; defaults to *static*
+* **warDirectory**: name of directory relative to WAR root, where artifacts from **grunt** build will be copied; defaults to *jsSourceDirectory*
 
 #### node
 
@@ -213,7 +210,7 @@ remember to exclude those files from integrated workflow config, as else Grunt w
 Using grunt-maven-plugin is convenient, but there is still a huge gap between frontend and backend development workflow. Various IDEs (Netbeans, IntelliJ Idea, Eclipse)
 try to ease webapp development by synchronizing changes made in *src/webapp/* to exploded WAR directory in *target/*. This naive approach works as long as there is no
 need to minify JavaScript sources, compile less files or project does not follow "single WAR" rule and can afford using Maven profiles. Rebuilding project each time a
-change was made in *.js is a horrible thing. Fortunately grunt-maven-plugin is a great tool to solve this problem.
+change was made in \*.js is a horrible thing. Fortunately grunt-maven-plugin is a great tool to solve this problem.
 
 Idea is to ignore IDE mechanisms and run Grunt build each time a change in static files was made. Traditional workflow looks like:
 
@@ -321,6 +318,8 @@ but most probably it is enough to override **targetPath** property.
 
 
 ## Changelog
+* **1.5.9** (26.12.2014)
+  * added option to change destination of all deliverables within WAR
 * **1.4.1** (02.08.2014)
   * added option to exclude custom resources in create-resources phase
 * **1.4.0** (07.07.2014)
