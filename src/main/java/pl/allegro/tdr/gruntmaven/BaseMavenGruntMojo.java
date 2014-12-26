@@ -102,7 +102,7 @@ public abstract class BaseMavenGruntMojo extends AbstractMojo {
     protected abstract void executeInternal() throws MojoExecutionException, MojoFailureException;
 
     private void initializeParameters() {
-        if (warTargetDirectory == null || warTargetDirectory.isEmpty()) {
+        if (warTargetDirectory == null) {
             warTargetDirectory = jsSourceDirectory;
         }
     }
