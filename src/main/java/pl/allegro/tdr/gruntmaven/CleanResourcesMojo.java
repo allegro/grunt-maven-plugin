@@ -35,7 +35,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
  *
  * @author Adam Dubiel
  */
-@Mojo(name = "clean", defaultPhase = LifecyclePhase.CLEAN)
+@Mojo(name = "clean", defaultPhase = LifecyclePhase.CLEAN, threadSafe = true)
 public class CleanResourcesMojo extends BaseMavenGruntMojo {
 
     /**

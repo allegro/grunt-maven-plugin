@@ -26,7 +26,7 @@ import pl.allegro.tdr.gruntmaven.executable.Executable;
 /**
  * Executes bower install to download all dependencies declared in bower.json.
  */
-@Mojo(name = "bower", defaultPhase = LifecyclePhase.COMPILE)
+@Mojo(name = "bower", defaultPhase = LifecyclePhase.COMPILE, threadSafe = true)
 public class ExecBowerMojo extends AbstractExecutableMojo {
 
     private static final String BOWER_INSTALL_COMMAND = "install";
