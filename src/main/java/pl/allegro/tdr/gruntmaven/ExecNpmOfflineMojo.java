@@ -29,7 +29,7 @@ import pl.allegro.tdr.gruntmaven.executable.Executable;
  *
  * @author Adam Dubiel
  */
-@Mojo(name = "npm-offline", defaultPhase = LifecyclePhase.COMPILE)
+@Mojo(name = "npm-offline", defaultPhase = LifecyclePhase.COMPILE, threadSafe = true)
 public class ExecNpmOfflineMojo extends ExecNpmMojo {
 
     private static final String NODE_MODULES_DIR_NAME = "node_modules";
