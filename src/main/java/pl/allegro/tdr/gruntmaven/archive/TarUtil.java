@@ -15,12 +15,12 @@
  */
 package pl.allegro.tdr.gruntmaven.archive;
 
-import java.io.*;
-
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.plexus.archiver.tar.TarEntry;
-import org.codehaus.plexus.archiver.tar.TarInputStream;
+
+import java.io.*;
 
 /**
  *
@@ -32,12 +32,12 @@ public final class TarUtil {
     }
 
     public static void untar(File source, File target, Log logger) {
-        TarInputStream tarInput = null;
-        TarEntry entry;
+        TarArchiveInputStream tarInput = null;
+        ArchiveEntry entry;
         OutputStream output = null;
 
         try {
-            tarInput = new TarInputStream(new FileInputStream(source));
+            tarInput = new TarArchiveInputStream(new FileInputStream(source));
 
             entry = tarInput.getNextEntry();
             while (entry != null) {
