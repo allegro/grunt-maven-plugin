@@ -318,7 +318,7 @@ but most probably it is enough to override **targetPath** property.
 
 
 ## Changelog
-* **1.5.9** (26.12.2014)
+* **1.5.0** (26.12.2014)
   * added option to change destination of all deliverables within WAR
 * **1.4.1** (02.08.2014)
   * added option to exclude custom resources in create-resources phase
