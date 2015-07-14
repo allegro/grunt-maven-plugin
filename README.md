@@ -318,6 +318,9 @@ but most probably it is enough to override **targetPath** property.
 
 
 ## Changelog
+* **1.5.1** (24.06.2015)
+  * fix unarchiving tar on osx (#70)
+  * mark all POJOs as thread-safe
 * **1.5.0** (26.12.2014)
   * added option to change destination of all deliverables within WAR
 * **1.4.1** (02.08.2014)
