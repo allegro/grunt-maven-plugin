@@ -30,6 +30,7 @@ import pl.allegro.tdr.gruntmaven.executable.Executable;
 public class ExecBowerMojo extends AbstractExecutableMojo {
 
     private static final String BOWER_INSTALL_COMMAND = "install";
+    private static final String BOWER_NON_INTERACTIVE_MODE = "--config.interactive=false";
 
     /**
      * Name of bower executable in PATH, defaults to bower.
@@ -48,6 +49,7 @@ public class ExecBowerMojo extends AbstractExecutableMojo {
         Executable executable = new Executable(bowerExecutable);
 
         executable.addArgument(BOWER_INSTALL_COMMAND);
+        executable.addArgument(BOWER_NON_INTERACTIVE_MODE);
         if (!showColors) {
             executable.addArgument("--color=false");
         }
