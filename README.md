@@ -1,5 +1,18 @@
 # grunt-maven-plugin
 
+## Deprecation note
+
+> **This plugin will no longer be maintained**. I can accept pull requests with some minor improvements and release new
+> versions, but there will be no active development.
+>
+> It has been almost two years since we moved from Maven to Gradle in most of our projects at Allegro. Since we don't use
+> the plugin nor even Maven, it is impossible to notice what new features are needed as frontend tools develop.
+>
+> If you are looking for a simple replacement, try [frontend-maven-plugin](https://github.com/eirslett/frontend-maven-plugin).
+
+---
+
+
 **grunt-maven-plugin** plugin allows you to integrate **Grunt** tasks into the **Maven** build process. [**Grunt**](http://gruntjs.com/) is the JavaScript task runner utility. **grunt-maven-plugin** works on both Windows and \*nix systems.
 
 **grunt-maven-plugin** comes with unique Maven+Grunt Integrated Workflow which removes all impediments present when trying to build project using two different build tools.
