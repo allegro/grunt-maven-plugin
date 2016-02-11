@@ -1,0 +1,11 @@
+{
+	"name": "${project.artifactId}",
+	"version": "${project.version}",
+	"description": "${project.description}",
+	"homepage": "${project.url}",
+	"devDependencies": {
+		"grunt": "~${grunt.version}",
+		"matchdep": "~0.3.0",
+		"grunt-maven": "~1.1.0"
+	}
+}
