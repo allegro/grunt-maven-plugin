@@ -1,0 +1,18 @@
+{
+	"name": "${project.artifactId}",
+	"version": "${project.version}",
+	"description": "${project.description}",
+	"homepage": "${project.url}",
+	"main": "js/${project.artifactId}.js",
+	"private": true,
+	"ignore": [
+		"**/.*",
+		"node_modules",
+		"bower_components",
+		"target-grunt/bower-components",
+		"test",
+		"tests"
+	],
+	"dependencies": {
+	}
+}
